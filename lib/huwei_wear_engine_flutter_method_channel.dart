@@ -14,4 +14,10 @@ class MethodChannelHuweiWearEngineFlutter extends HuweiWearEngineFlutterPlatform
     final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
   }
+
+  @override
+  Future<bool?> has() async {
+    final result = await methodChannel.invokeMethod<bool>('has');
+    return result;
+  }
 }

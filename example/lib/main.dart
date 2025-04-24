@@ -31,8 +31,10 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion =
-          await _huweiWearEngineFlutterPlugin.getPlatformVersion() ?? 'Unknown platform version';
+      bool? result = await _huweiWearEngineFlutterPlugin.has();
+      print("Oliver404 $result");
+      if(result == true) platformVersion = "TRUE";
+      else platformVersion = "FALSE";
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }

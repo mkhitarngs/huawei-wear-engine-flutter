@@ -5,4 +5,8 @@ class HuweiWearEngineFlutter {
   Future<String?> getPlatformVersion() {
     return HuweiWearEngineFlutterPlatform.instance.getPlatformVersion();
   }
+
+  Future<bool?> has() {
+    return HuweiWearEngineFlutterPlatform.instance.has();
+  }
 }

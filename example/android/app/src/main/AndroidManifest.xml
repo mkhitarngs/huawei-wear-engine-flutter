@@ -1,8 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <queries>
+        <package android:name="com.huawei.health" />
+        <package android:name="com.huawei.wearengine.service.WearEngineService" />
+    </queries>
     <application
         android:label="huwei_wear_engine_flutter_example"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="com.huawei.hms.client.appid"
+            android:value="YOUR_APP_ID"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
