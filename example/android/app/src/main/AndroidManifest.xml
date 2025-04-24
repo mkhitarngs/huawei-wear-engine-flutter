@@ -9,7 +9,7 @@
         android:icon="@mipmap/ic_launcher">
         <meta-data
             android:name="com.huawei.hms.client.appid"
-            android:value="YOUR_APP_ID"/>
+            android:value="${hwAppId}"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

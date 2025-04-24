@@ -1,8 +1,20 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// Read config.properties
+val configFile = rootProject.file("config.properties")
+val configProps = Properties()
+
+if (configFile.exists()) {
+    configFile.inputStream().use { configProps.load(it) }
+} else {
+    throw GradleException("File config.properties not found!!!")
 }
 
 android {
@@ -21,7 +33,14 @@ android {
     }
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.huwei_wear_engine_flutter_example"
+        applicationId = configProps["package"] as String
+
+        manifestPlaceholders.putAll(
+            mapOf(
+                "hwAppId" to configProps["hwAppId"] as String
+            )
+        )
+
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
 //        minSdk = flutter.minSdkVersion
