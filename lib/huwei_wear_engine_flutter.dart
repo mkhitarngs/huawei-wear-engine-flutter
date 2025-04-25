@@ -1,4 +1,6 @@
 
+import 'package:huwei_wear_engine_flutter/Permission.dart';
+
 import 'huwei_wear_engine_flutter_platform_interface.dart';
 
 class HuweiWearEngineFlutter {
@@ -6,7 +8,15 @@ class HuweiWearEngineFlutter {
     return HuweiWearEngineFlutterPlatform.instance.getPlatformVersion();
   }
 
-  Future<bool?> has() {
-    return HuweiWearEngineFlutterPlatform.instance.has();
+  Future<bool?> hasAvailableDevices() {
+    return HuweiWearEngineFlutterPlatform.instance.hasAvailableDevices();
+  }
+
+  Future<bool?> checkPermission(Permission permission) {
+    return HuweiWearEngineFlutterPlatform.instance.checkPermission(permission);
+  }
+
+  Future<List<bool>?> checkPermissions(List<Permission> permissions) {
+    return HuweiWearEngineFlutterPlatform.instance.checkPermissions(permissions);
   }
 }

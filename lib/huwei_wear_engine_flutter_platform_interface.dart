@@ -1,3 +1,4 @@
+import 'package:huwei_wear_engine_flutter/Permission.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'huwei_wear_engine_flutter_method_channel.dart';
@@ -27,7 +28,15 @@ abstract class HuweiWearEngineFlutterPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  Future<bool?> has() {
-    throw UnimplementedError('has() has not been implemented.');
+  Future<bool?> hasAvailableDevices() {
+    throw UnimplementedError('hasAvailableDevices() has not been implemented.');
+  }
+
+  Future<bool?> checkPermission(Permission permission) {
+    throw UnimplementedError('checkPermission() has not been implemented.');
+  }
+
+  Future<List<bool>?> checkPermissions(List<Permission> permissions) {
+    throw UnimplementedError('checkPermissions() has not been implemented.');
   }
 }
