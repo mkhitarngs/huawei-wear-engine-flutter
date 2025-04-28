@@ -19,4 +19,8 @@ class HuweiWearEngineFlutter {
   Future<List<bool>?> checkPermissions(List<Permission> permissions) {
     return HuweiWearEngineFlutterPlatform.instance.checkPermissions(permissions);
   }
+
+  Future<List<bool>?> requestPermission(List<Permission> permissions) {
+    return HuweiWearEngineFlutterPlatform.instance.requestPermission(permissions);
+  }
 }

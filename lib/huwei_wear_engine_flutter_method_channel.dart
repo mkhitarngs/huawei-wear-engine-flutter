@@ -46,4 +46,14 @@ class MethodChannelHuweiWearEngineFlutter
     );
     return result;
   }
+
+  @override
+  Future<List<bool>?> requestPermission(List<Permission> permissions) async {
+    final params = {"permissions": permissions.map((permission) => permission.value).toList()};
+    final result = await methodChannel.invokeMethod<List<bool>>(
+      'requestPermission',
+      params,
+    );
+    return result;
+  }
 }

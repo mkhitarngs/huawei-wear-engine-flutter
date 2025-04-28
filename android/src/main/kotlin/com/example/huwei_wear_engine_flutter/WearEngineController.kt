@@ -1,6 +1,8 @@
 package com.example.huwei_wear_engine_flutter
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import com.huawei.hmf.tasks.OnFailureListener
 import com.huawei.hmf.tasks.OnSuccessListener
 import com.huawei.wearengine.HiWear
@@ -48,23 +50,23 @@ class WearEngineController(context: Context) {
     fun requestPermission(
         vararg permission: Permission,
         authCallback: AuthCallback,
-        onSuccess: (Void) -> Unit,
+        onSuccess: () -> Unit,
         onFailure: (Exception) -> Unit
     ) {
         authClient.requestPermission(authCallback, *permission)
-            .addOnSuccessListener(onSuccess)
+            .addOnSuccessListener {
+                result -> onSuccess()
+            }
             .addOnFailureListener(onFailure)
     }
 
-    fun getBondedDevices() {
+    fun getBondedDevices(
+        onSuccess: (List<Device>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
         deviceClient.bondedDevices
-            .addOnSuccessListener { devices -> // The device list is obtained.
-                // TODO: Add callback
-            }
-            .addOnFailureListener {
-                // TODO: Add callback
-                // Process logic when the device list fails to be obtained.
-            }
+            .addOnSuccessListener(onSuccess)
+            .addOnFailureListener(onFailure)
     }
 
     fun getCommonDevice() {

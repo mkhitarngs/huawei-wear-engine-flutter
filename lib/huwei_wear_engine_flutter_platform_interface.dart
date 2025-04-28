@@ -39,4 +39,8 @@ abstract class HuweiWearEngineFlutterPlatform extends PlatformInterface {
   Future<List<bool>?> checkPermissions(List<Permission> permissions) {
     throw UnimplementedError('checkPermissions() has not been implemented.');
   }
+
+  Future<List<bool>?> requestPermission(List<Permission> permissions) {
+    throw UnimplementedError('requestPermission() has not been implemented.');
+  }
 }
