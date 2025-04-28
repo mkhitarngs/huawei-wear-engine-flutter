@@ -116,7 +116,32 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _onRequestPermission(Permission permission) async {
+    List<bool>? grantedLst;
+    try {
+      grantedLst = await _huweiWearEngineFlutterPlugin.requestPermission([permission]);
+      setState(() {
+        _permissions[permission]?.second = grantedLst?[0] ?? false;
+      });
+    } on PlatformException {
+      print("Oliver404 - onRequestPermission - ERROR");
+    }
+  }
 
+  void _onRequestPermissions() async {
+    List<bool>? grantedLst;
+    try {
+      List<Permission> permissionLst = _permissions.entries.where((
+          permission) => permission.value.first).map((permission) =>
+      permission.key).toList();
+      grantedLst = await _huweiWearEngineFlutterPlugin.requestPermission(permissionLst);
+      setState(() {
+        for (final (index, permission) in permissionLst.indexed) {
+          _permissions[permission]?.second = grantedLst?[index] ?? false;
+        }
+      });
+    } on PlatformException {
+      print("Oliver404 - onRequestPermissions - ERROR");
+    }
   }
 
   @override
@@ -217,7 +242,7 @@ class _MyAppState extends State<MyApp> {
                     )
                 ),
                 ElevatedButton(
-                    onPressed:  _enablePermissionBtns ? _onCheckPermissions : null,
+                    onPressed:  _enablePermissionBtns ? _onRequestPermissions : null,
                     child: Row(
                       children: [
                         Text("Request"),
