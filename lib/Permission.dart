@@ -11,4 +11,32 @@ class Permission {
 
   @override
   String toString() => value;
+
+  static Permission? fromString(String strPermission) {
+    Permission? permission;
+
+    switch(strPermission) {
+      case "device_manager":
+        permission = DEVICE_MANAGER;
+        break;
+
+      case "notify":
+        permission = NOTIFY;
+        break;
+
+      case "sensor":
+        permission = SENSOR;
+        break;
+
+      case "motion_sensor":
+        permission = MOTION_SENSOR;
+        break;
+
+      case "wear_user_status":
+        permission = WEAR_USER_STATUS;
+        break;
+    };
+
+    return permission;
+  }
 }

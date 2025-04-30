@@ -5,10 +5,16 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:huwei_wear_engine_flutter/AuthCallback.dart';
+import 'package:huwei_wear_engine_flutter/Device.dart';
 import 'package:huwei_wear_engine_flutter/Permission.dart';
+import 'package:huwei_wear_engine_flutter/PingCallback.dart';
+import 'package:huwei_wear_engine_flutter/SendCallback.dart';
 import 'package:huwei_wear_engine_flutter/huwei_wear_engine_flutter.dart';
 import 'package:huwei_wear_engine_flutter_example/components/PermissionUI.dart';
 import 'package:huwei_wear_engine_flutter_example/utils/Pair.dart';
+import 'package:huwei_wear_engine_flutter_example/utils/Utils.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,52 +31,35 @@ class _MyAppState extends State<MyApp> {
   final _huweiWearEngineFlutterPlugin = HuweiWearEngineFlutter();
 
   bool _hasAvailableDevices = false;
-  Map<Permission, Pair<bool, bool>> _permissions = {
+  final Map<Permission, Pair<bool, bool>> _permissions = {
     Permission.DEVICE_MANAGER: Pair(false, false),
     Permission.NOTIFY: Pair(false, false),
     Permission.SENSOR: Pair(false, false),
     Permission.MOTION_SENSOR: Pair(false, false),
     Permission.WEAR_USER_STATUS: Pair(false, false),
   };
+  List<Device> _devices = [];
+  Device? _selectedDevice = null;
+  bool? _isAppInstalled = null;
+  int? _appVersion = null;
+  int? _pingResult = null;
 
   // UI status controls
+  final TextEditingController _pkgNameController = TextEditingController();
+  final TextEditingController _fingerPrintController = TextEditingController();
+  final TextEditingController _msgController = TextEditingController();
   bool _enablePermissionBtns = false;
-
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      bool? result = await _huweiWearEngineFlutterPlugin.hasAvailableDevices();
-      print("Oliver404 $result");
-      if (result == true)
-        platformVersion = "TRUE";
-      else
-        platformVersion = "FALSE";
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
   }
 
   void _onHasAvailableDevicesClick() async {
     bool? hasAvailableDevices;
     try {
       hasAvailableDevices =
-      await _huweiWearEngineFlutterPlugin.hasAvailableDevices();
+          await _huweiWearEngineFlutterPlugin.hasAvailableDevices();
       setState(() {
         _hasAvailableDevices = hasAvailableDevices ?? false;
       });
@@ -101,13 +90,17 @@ class _MyAppState extends State<MyApp> {
   void _onCheckPermissions() async {
     List<bool>? grantedLst;
     try {
-      List<Permission> permissionLst = _permissions.entries.where((
-          permission) => permission.value.first).map((permission) =>
-      permission.key).toList();
-      grantedLst = await _huweiWearEngineFlutterPlugin.checkPermissions(permissionLst);
+      List<Permission> permissionLst =
+          _permissions.entries
+              .where((permission) => permission.value.first)
+              .map((permission) => permission.key)
+              .toList();
+      grantedLst = await _huweiWearEngineFlutterPlugin.checkPermissions(
+        permissionLst,
+      );
       setState(() {
         for (final (index, permission) in permissionLst.indexed) {
-            _permissions[permission]?.second = grantedLst?[index] ?? false;
+          _permissions[permission]?.second = grantedLst?[index] ?? false;
         }
       });
     } on PlatformException {
@@ -116,32 +109,173 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _onRequestPermission(Permission permission) async {
-    List<bool>? grantedLst;
     try {
-      grantedLst = await _huweiWearEngineFlutterPlugin.requestPermission([permission]);
-      setState(() {
-        _permissions[permission]?.second = grantedLst?[0] ?? false;
-      });
+      _AuthCallbackImpl authCallback = _AuthCallbackImpl(
+        _onOkPermissions,
+        _onCancelRequestPermissions,
+      );
+      await _huweiWearEngineFlutterPlugin.requestPermission(authCallback, [
+        permission,
+      ]);
     } on PlatformException {
-      print("Oliver404 - onRequestPermission - ERROR");
+      printError("Oliver404 - onRequestPermission - ERROR");
     }
   }
 
   void _onRequestPermissions() async {
-    List<bool>? grantedLst;
     try {
-      List<Permission> permissionLst = _permissions.entries.where((
-          permission) => permission.value.first).map((permission) =>
-      permission.key).toList();
-      grantedLst = await _huweiWearEngineFlutterPlugin.requestPermission(permissionLst);
-      setState(() {
-        for (final (index, permission) in permissionLst.indexed) {
-          _permissions[permission]?.second = grantedLst?[index] ?? false;
-        }
-      });
+      _AuthCallbackImpl authCallback = _AuthCallbackImpl(
+        _onOkPermissions,
+        _onCancelRequestPermissions,
+      );
+      List<Permission> permissionLst =
+          _permissions.entries
+              .where((permission) => permission.value.first)
+              .map((permission) => permission.key)
+              .toList(); // Get only checked permissions
+      await _huweiWearEngineFlutterPlugin.requestPermission(
+        authCallback,
+        permissionLst,
+      );
     } on PlatformException {
       print("Oliver404 - onRequestPermissions - ERROR");
     }
+  }
+
+  void _onCancelRequestPermissions() async {
+    print("Oliver404 - onCancelRequestPermissions");
+    _showToastMessage("Request permissions canceled!!!");
+  }
+
+  void _onOkPermissions(List<Permission> grantedPermissions) {
+    printInfo("Oliver404 - onOkPermissions");
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (mounted) {
+    setState(() {
+      for (final permission in grantedPermissions) {
+        _permissions[permission]?.second = true;
+      }
+    });
+    // }
+    // });
+  }
+
+  void _onGetBondedDevices() async {
+    List<Device>? devices;
+    try {
+      devices = await _huweiWearEngineFlutterPlugin.getBondedDevices();
+      setState(() {
+        _devices = devices ?? [];
+      });
+    } on PlatformException {
+      printError("Oliver404 - onGetBondedDevices - ERROR");
+    }
+  }
+
+  void _onVerifyAppIsInstalled() async {
+    if (_selectedDevice == null) {
+      _showToastMessage("Select a device!!!");
+    } else if (_pkgNameController.text.isEmpty) {
+      _showToastMessage("Package name cannot be empty");
+    } else {
+      bool? result;
+      try {
+        result = await _huweiWearEngineFlutterPlugin.isAppInstalled(
+          _selectedDevice!,
+          _pkgNameController.text,
+        );
+        setState(() {
+          _isAppInstalled = result;
+        });
+      } on PlatformException {
+        printError("Oliver404 - onVerifyAppIsInstalled - ERROR");
+      }
+    }
+  }
+
+  void _onGetAppVersion() async {
+    if (_selectedDevice == null) {
+      _showToastMessage("Select a device!!!");
+    } else if (_pkgNameController.text.isEmpty) {
+      _showToastMessage("Package name cannot be empty");
+    } else {
+      int? result;
+      try {
+        result = await _huweiWearEngineFlutterPlugin.getAppVersion(
+          _selectedDevice!,
+          _pkgNameController.text,
+        );
+        setState(() {
+          _appVersion = result;
+        });
+      } on PlatformException {
+        printError("Oliver404 - onGetAppVersion - ERROR");
+      }
+    }
+  }
+
+  void _onPing() async {
+    if (_selectedDevice == null) {
+      _showToastMessage("Select a device!!!");
+    } else if (_pkgNameController.text.isEmpty) {
+      _showToastMessage("Package name cannot be empty");
+    } else {
+      try {
+        _PingCallbackImpl pingCallback = _PingCallbackImpl((resultCode) {
+          setState(() {
+            _pingResult = resultCode;
+          });
+        });
+        await _huweiWearEngineFlutterPlugin.ping(
+          _selectedDevice!,
+          _pkgNameController.text,
+          pingCallback,
+        );
+      } on PlatformException {
+        printError("Oliver404 - onPing - ERROR");
+      }
+    }
+  }
+
+  void _onSendMessage() async {
+    if (_selectedDevice == null) {
+      _showToastMessage("Select a device!!!");
+    } else if (_pkgNameController.text.isEmpty) {
+      _showToastMessage("Package name cannot be empty");
+    } else if (_fingerPrintController.text.isEmpty) {
+      _showToastMessage("Finger print cannot be empty");
+    } else if (_msgController.text.isEmpty) {
+      _showToastMessage("Message cannot be empty");
+    } else {
+      int? result;
+      try {
+        _SendCallbackImpl sendCallback = _SendCallbackImpl(
+          _onSendProgress,
+          _onSendResult,
+        );
+        await _huweiWearEngineFlutterPlugin.send(
+          _selectedDevice!,
+          _pkgNameController.text,
+          _fingerPrintController.text,
+          _msgController.text,
+          sendCallback
+        );
+      } on PlatformException {
+        printError("Oliver404 - onGetAppVersion - ERROR");
+      }
+    }
+  }
+
+  void _onSendProgress(int progress) {
+    _showToastMessage("Message send progress: $progress");
+  }
+
+  void _onSendResult(int codeResult) {
+    _showToastMessage("Message result code: $codeResult");
+  }
+
+  void _showToastMessage(String message) {
+    Fluttertoast.showToast(msg: message, toastLength: Toast.LENGTH_LONG);
   }
 
   @override
@@ -156,11 +290,52 @@ class _MyAppState extends State<MyApp> {
               children: [
                 _sectionHasAvailableDevices(context),
                 _sectionPermissions(context),
+                _sectionDevices(context),
+                _appSection(context),
+                _messageSection(context),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _emptyList() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(children: [Icon(Icons.cancel), Text("Empty list")]),
+    );
+  }
+
+  Widget _watchWidget(
+    String name,
+    bool connected,
+    bool selected,
+    Function() onTap,
+  ) {
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Text(name),
+              Row(
+                children: [
+                  Text("Connected: "),
+                  Icon(
+                    Icons.circle,
+                    color: connected ? Colors.green : Colors.red,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      color: selected ? Colors.blueGrey : null,
     );
   }
 
@@ -170,10 +345,7 @@ class _MyAppState extends State<MyApp> {
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(title, style: Theme
-              .of(context)
-              .textTheme
-              .titleLarge),
+          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
         ),
         body,
       ],
@@ -217,45 +389,191 @@ class _MyAppState extends State<MyApp> {
     return _stepSection(
       "STEP 2: Verify and request permissions",
       Column(
-          children: [
-            ..._permissions.entries.map((permission) {
-              return PermissionComponent(
-                checked: permission.value.first,
-                permission: permission.key,
-                granted: permission.value.second,
-                onPermissionCheked:
-                    (checked) => _onSelectPermission(permission.key, checked),
-                onVerifyPermission: () => _onCheckPermission(permission.key),
-                onRequestPermission: () => _onRequestPermission(permission.key),
-              );
-            }).toList(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                    onPressed: _enablePermissionBtns ? _onCheckPermissions : null,
-                    child: Row(
-                      children: [
-                        Text("Refresh"),
-                        Icon(Icons.refresh)
-                      ],
-                    )
+        children: [
+          ..._permissions.entries.map((permission) {
+            return PermissionComponent(
+              checked: permission.value.first,
+              permission: permission.key,
+              granted: permission.value.second,
+              onPermissionCheked:
+                  (checked) => _onSelectPermission(permission.key, checked),
+              onVerifyPermission: () => _onCheckPermission(permission.key),
+              onRequestPermission: () => _onRequestPermission(permission.key),
+            );
+          }).toList(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: _enablePermissionBtns ? _onCheckPermissions : null,
+                child: Row(children: [Text("Refresh"), Icon(Icons.refresh)]),
+              ),
+              ElevatedButton(
+                onPressed: _enablePermissionBtns ? _onRequestPermissions : null,
+                child: Row(
+                  children: [Text("Request"), Icon(Icons.question_mark)],
                 ),
-                ElevatedButton(
-                    onPressed:  _enablePermissionBtns ? _onRequestPermissions : null,
-                    child: Row(
-                      children: [
-                        Text("Request"),
-                        Icon(Icons.question_mark)
-                      ],
-                    )
-                ),
-              ],
-            )
-
-          ]
-
+              ),
+            ],
+          ),
+        ],
       ),
     );
+  }
+
+  Widget _sectionDevices(BuildContext context) {
+    return _stepSection(
+      "STEP 3: Get and select device",
+      Column(
+        children: [
+          ..._devices.map((device) {
+            return _watchWidget(
+              device.name,
+              device.connected,
+              _selectedDevice == device,
+              () => {
+                setState(() {
+                  _selectedDevice = device;
+                }),
+              },
+            );
+          }).toList(),
+          if (_devices.isEmpty) _emptyList(),
+          ElevatedButton(
+            onPressed: _onGetBondedDevices,
+            child: Text("Get Devices"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _appSection(BuildContext context) {
+    return _stepSection(
+      "STEP 4: Verify if app is installed and the version",
+      Column(
+        children: [
+          TextField(
+            controller: _pkgNameController,
+            decoration: InputDecoration(
+              labelText: 'Enter your package name',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          Row(
+            children: [
+              Text("Is my app installed: "),
+              if (_isAppInstalled != null)
+                Icon(
+                  Icons.circle,
+                  color: _isAppInstalled! ? Colors.green : Colors.red,
+                ),
+              TextButton(
+                onPressed: _onVerifyAppIsInstalled,
+                child: Text("Check"),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Text("App version: ${_appVersion ?? ""}"),
+              TextButton(onPressed: _onGetAppVersion, child: Text("Check")),
+            ],
+          ),
+          Row(
+            children: [
+              Text("Ping result: ${_pingResult ?? ""}"),
+              TextButton(onPressed: _onPing, child: Text("Ping")),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _messageSection(BuildContext context) {
+    return _stepSection(
+      "STEP 5: Send text message",
+      Column(
+        children: [
+          TextField(
+            controller: _pkgNameController,
+            decoration: InputDecoration(
+              labelText: 'Enter your package name',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 16),
+          TextField(
+            controller: _fingerPrintController,
+            decoration: InputDecoration(
+              labelText: 'Enter your finger print',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 16),
+          TextField(
+            controller: _msgController,
+            decoration: InputDecoration(
+              labelText: 'Enter your text message',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _onSendMessage,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [Text("Send"), SizedBox(width: 8), Icon(Icons.send)],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AuthCallbackImpl implements AuthCallBack {
+  final void Function(List<Permission>) _onOk;
+  final void Function() _onCancel;
+
+  _AuthCallbackImpl(this._onOk, this._onCancel);
+
+  @override
+  void onCancel() {
+    this._onCancel();
+  }
+
+  @override
+  void onOk(List<Permission> grantedPermissions) {
+    this._onOk(grantedPermissions);
+  }
+}
+
+class _PingCallbackImpl implements PingCallback {
+  final void Function(int) _onPingResult;
+
+  _PingCallbackImpl(this._onPingResult);
+
+  @override
+  void onPingResult(int resultCode) {
+    _onPingResult(resultCode);
+  }
+}
+
+class _SendCallbackImpl implements SendCallback {
+  final void Function(int) _onSendProgress;
+  final void Function(int) _onSendResult;
+
+  _SendCallbackImpl(this._onSendProgress, this._onSendResult);
+
+  @override
+  void onSendProgress(int progress) {
+    _onSendProgress(progress);
+  }
+
+  @override
+  void onSendResult(int resultCode) {
+    _onSendResult(resultCode);
   }
 }

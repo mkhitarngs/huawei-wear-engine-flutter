@@ -1,10 +1,6 @@
 package com.example.huwei_wear_engine_flutter
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
-import com.huawei.hmf.tasks.OnFailureListener
-import com.huawei.hmf.tasks.OnSuccessListener
 import com.huawei.wearengine.HiWear
 import com.huawei.wearengine.auth.AuthCallback
 import com.huawei.wearengine.auth.AuthClient
@@ -13,7 +9,9 @@ import com.huawei.wearengine.device.Device
 import com.huawei.wearengine.device.DeviceClient
 import com.huawei.wearengine.p2p.Message
 import com.huawei.wearengine.p2p.P2pClient
+import com.huawei.wearengine.p2p.PingCallback
 import com.huawei.wearengine.p2p.SendCallback
+import java.nio.charset.StandardCharsets
 
 
 class WearEngineController(context: Context) {
@@ -40,7 +38,7 @@ class WearEngineController(context: Context) {
     fun checkPermissions(
         permissions: Array<Permission>,
         onResult: (Array<out Boolean>) -> Unit,
-        onFailure: (Exception) -> Unit
+        onFailure: (Exception) -> Unit,
     ) {
         authClient.checkPermissions(permissions)
             .addOnSuccessListener(onResult)
@@ -51,18 +49,16 @@ class WearEngineController(context: Context) {
         vararg permission: Permission,
         authCallback: AuthCallback,
         onSuccess: () -> Unit,
-        onFailure: (Exception) -> Unit
+        onFailure: (Exception) -> Unit,
     ) {
         authClient.requestPermission(authCallback, *permission)
-            .addOnSuccessListener {
-                result -> onSuccess()
-            }
+            .addOnSuccessListener { onSuccess() }
             .addOnFailureListener(onFailure)
     }
 
     fun getBondedDevices(
         onSuccess: (List<Device>) -> Unit,
-        onFailure: (Exception) -> Unit
+        onFailure: (Exception) -> Unit,
     ) {
         deviceClient.bondedDevices
             .addOnSuccessListener(onSuccess)
@@ -97,66 +93,80 @@ class WearEngineController(context: Context) {
         TODO("To implement")
     }
 
-    fun isAppInstalled(connectedDevice: Device, pkgName: String) {
+    fun isAppInstalled(
+        connectedDevice: Device,
+        pkgName: String,
+        onResult: (Boolean) -> Unit,
+        onFailure: (Exception) -> Unit,
+    ) {
         p2pClient.isAppInstalled(connectedDevice, pkgName)
-            .addOnSuccessListener {
-                // TODO: Add callback
-                // The related logic to check whether the installation task of the app on the specified device is successfully executed.
-                // true: installed, false: uninstalled
-            }
-            .addOnFailureListener {
-                // TODO: Add callback
-                // The related logic to check whether the installation task of the app on the specified device fails to be executed.
-            }
+            .addOnSuccessListener(onResult)
+            .addOnFailureListener(onFailure)
     }
 
-    fun getAppVersion(connectedDevice: Device, pkgName: String) {
+    fun getAppVersion(
+        connectedDevice: Device,
+        pkgName: String,
+        onResult: (Int) -> Unit,
+        onFailure: (Exception) -> Unit,
+    ) {
         p2pClient.getAppVersion(connectedDevice, pkgName)
-            .addOnSuccessListener {
-                // TODO: Add callback
-                // The logic used when the task of obtaining the app version number on the device is successfully executed.
-                // -1: The app has not been installed.
-            }
-            .addOnFailureListener {
-                // TODO: Add callback
-                // The logic used when the task of obtaining the app version number on the device fails to be executed.
-            }
+            .addOnSuccessListener(onResult)
+            .addOnFailureListener(onFailure)
     }
 
-    fun ping(connectedDevice: Device, pkgName: String) {
-        p2pClient.setPeerPkgName(pkgName);
-        p2pClient.ping(connectedDevice) {
-            // Result of communicating with the peer device using the ping method.
-            // If the errCode value is 200, your app has not been installed on the wearable device. If the errCode value is 201, your app has been installed but not started on the wearable device. If the errCode value is 202, your app has been started on the wearable device.
-        }.addOnSuccessListener {
-            // Related processing logic for your app after the ping method is successfully executed.
-        }.addOnFailureListener {
-            // Related processing logic for your app after the ping method fails.
-        }
+    fun ping(
+        connectedDevice: Device,
+        pkgName: String,
+        pingCallback: PingCallback,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit,
+    ) {
+        p2pClient.setPeerPkgName(pkgName)
+        p2pClient.ping(connectedDevice, pingCallback)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener(onFailure)
     }
 
     fun send(
         connectedDevice: Device,
+        pkgName: String,
+        fingerPrint: String,
+        sendMessage: String,
+        sendCallback: SendCallback,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit,
+    ) {
+        send(
+            connectedDevice,
+            pkgName,
+            fingerPrint,
+            buildMessage(sendMessage),
+            sendCallback,
+            onSuccess,
+            onFailure
+        )
+    }
+
+    fun send(
+        connectedDevice: Device,
+        pkgName: String,
+        fingerPrint: String,
         sendMessage: Message,
         sendCallback: SendCallback,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit,
     ) {
-//        val sendCallback = object : SendCallback {
-//            override fun onSendResult(result: Int) {
-//                onSendResult(result)
-//            }
-//            override fun onSendProgress(progress: Long) {
-//                onSendProgress(progress)
-//            }
-//        }
-
+        p2pClient.setPeerPkgName(pkgName);
+        p2pClient.setPeerFingerPrint(fingerPrint);
         p2pClient.send(connectedDevice, sendMessage, sendCallback)
-            .addOnSuccessListener {
-                // TODO: Add callback
-                // Related processing logic for your app after the send task is successfully executed.
-            }
-            .addOnFailureListener {
-                // TODO: Add callback
-                // Related processing logic for your app after the send task fails.
-            }
+            .addOnSuccessListener{ onSuccess() }
+            .addOnFailureListener(onFailure)
+    }
+
+    fun buildMessage(message: String): Message {
+        val builder = Message.Builder()
+        builder.setPayload(message.encodeToByteArray())
+        return builder.build()
     }
 }

@@ -13,3 +13,4 @@ key.properties
 **/*.keystore
 **/*.jks
 app/agconnect-services.json
+sign

@@ -1,6 +1,10 @@
+import 'package:huwei_wear_engine_flutter/Device.dart';
 import 'package:huwei_wear_engine_flutter/Permission.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import 'AuthCallback.dart';
+import 'PingCallback.dart';
+import 'SendCallback.dart';
 import 'huwei_wear_engine_flutter_method_channel.dart';
 
 abstract class HuweiWearEngineFlutterPlatform extends PlatformInterface {
@@ -9,7 +13,8 @@ abstract class HuweiWearEngineFlutterPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static HuweiWearEngineFlutterPlatform _instance = MethodChannelHuweiWearEngineFlutter();
+  static HuweiWearEngineFlutterPlatform _instance =
+      MethodChannelHuweiWearEngineFlutter();
 
   /// The default instance of [HuweiWearEngineFlutterPlatform] to use.
   ///
@@ -40,7 +45,36 @@ abstract class HuweiWearEngineFlutterPlatform extends PlatformInterface {
     throw UnimplementedError('checkPermissions() has not been implemented.');
   }
 
-  Future<List<bool>?> requestPermission(List<Permission> permissions) {
+  Future<void> requestPermission(
+    AuthCallBack authCallback,
+    List<Permission> permissions,
+  ) {
     throw UnimplementedError('requestPermission() has not been implemented.');
+  }
+
+  Future<List<Device>?> getBondedDevices() {
+    throw UnimplementedError('getBondedDevices() has not been implemented.');
+  }
+
+  Future<bool?> isAppInstalled(Device device, String pkgName) {
+    throw UnimplementedError('isAppInstalled() has not been implemented.');
+  }
+
+  Future<int?> getAppVersion(Device device, String pkgName) {
+    throw UnimplementedError('getAppVersion() has not been implemented.');
+  }
+
+  Future<void> ping(Device device, String pkgName, PingCallback pingCallback) {
+    throw UnimplementedError('ping() has not been implemented.');
+  }
+
+  Future<void> send(
+    Device connectedDevice,
+    String pkgName,
+    String fingerPrint,
+    String sendMessage,
+    SendCallback sendCallback,
+  ) {
+    throw UnimplementedError('ping() has not been implemented.');
   }
 }
