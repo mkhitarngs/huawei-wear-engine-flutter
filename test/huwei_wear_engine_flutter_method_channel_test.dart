@@ -1,12 +1,12 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:huwei_wear_engine_flutter/huwei_wear_engine_flutter_method_channel.dart';
+import 'package:huawei_wear_engine_flutter/huawei_wear_engine_method_channel.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  MethodChannelHuweiWearEngineFlutter platform = MethodChannelHuweiWearEngineFlutter();
-  const MethodChannel channel = MethodChannel('huwei_wear_engine_flutter');
+  MethodChannelHuaweiWearEngine platform = MethodChannelHuaweiWearEngine();
+  const MethodChannel channel = MethodChannel('huawei_wear_engine_flutter');
 
   setUp(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(

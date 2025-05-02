@@ -6,15 +6,15 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:huwei_wear_engine_flutter/AuthCallback.dart';
-import 'package:huwei_wear_engine_flutter/Device.dart';
-import 'package:huwei_wear_engine_flutter/Permission.dart';
-import 'package:huwei_wear_engine_flutter/PingCallback.dart';
-import 'package:huwei_wear_engine_flutter/SendCallback.dart';
-import 'package:huwei_wear_engine_flutter/huwei_wear_engine_flutter.dart';
-import 'package:huwei_wear_engine_flutter_example/components/PermissionUI.dart';
-import 'package:huwei_wear_engine_flutter_example/utils/Pair.dart';
-import 'package:huwei_wear_engine_flutter_example/utils/Utils.dart';
+import 'package:huawei_wear_engine_flutter/AuthCallback.dart';
+import 'package:huawei_wear_engine_flutter/Device.dart';
+import 'package:huawei_wear_engine_flutter/Permission.dart';
+import 'package:huawei_wear_engine_flutter/PingCallback.dart';
+import 'package:huawei_wear_engine_flutter/SendCallback.dart';
+import 'package:huawei_wear_engine_flutter_example/components/PermissionUI.dart';
+import 'package:huawei_wear_engine_flutter_example/utils/Pair.dart';
+import 'package:huawei_wear_engine_flutter_example/utils/Utils.dart';
+import 'package:huawei_wear_engine_flutter/huawei_wear_engine.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,7 +28,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final _huweiWearEngineFlutterPlugin = HuweiWearEngineFlutter();
+  final _huaweiWearEngineFlutterPlugin = HuaweiWearEngine();
 
   bool _hasAvailableDevices = false;
   final Map<Permission, Pair<bool, bool>> _permissions = {
@@ -59,7 +59,7 @@ class _MyAppState extends State<MyApp> {
     bool? hasAvailableDevices;
     try {
       hasAvailableDevices =
-          await _huweiWearEngineFlutterPlugin.hasAvailableDevices();
+          await _huaweiWearEngineFlutterPlugin.hasAvailableDevices();
       setState(() {
         _hasAvailableDevices = hasAvailableDevices ?? false;
       });
@@ -78,7 +78,7 @@ class _MyAppState extends State<MyApp> {
   void _onCheckPermission(Permission permission) async {
     bool? granted;
     try {
-      granted = await _huweiWearEngineFlutterPlugin.checkPermission(permission);
+      granted = await _huaweiWearEngineFlutterPlugin.checkPermission(permission);
       setState(() {
         _permissions[permission]?.second = granted ?? false;
       });
@@ -95,7 +95,7 @@ class _MyAppState extends State<MyApp> {
               .where((permission) => permission.value.first)
               .map((permission) => permission.key)
               .toList();
-      grantedLst = await _huweiWearEngineFlutterPlugin.checkPermissions(
+      grantedLst = await _huaweiWearEngineFlutterPlugin.checkPermissions(
         permissionLst,
       );
       setState(() {
@@ -114,7 +114,7 @@ class _MyAppState extends State<MyApp> {
         _onOkPermissions,
         _onCancelRequestPermissions,
       );
-      await _huweiWearEngineFlutterPlugin.requestPermission(authCallback, [
+      await _huaweiWearEngineFlutterPlugin.requestPermission(authCallback, [
         permission,
       ]);
     } on PlatformException {
@@ -133,7 +133,7 @@ class _MyAppState extends State<MyApp> {
               .where((permission) => permission.value.first)
               .map((permission) => permission.key)
               .toList(); // Get only checked permissions
-      await _huweiWearEngineFlutterPlugin.requestPermission(
+      await _huaweiWearEngineFlutterPlugin.requestPermission(
         authCallback,
         permissionLst,
       );
@@ -163,7 +163,7 @@ class _MyAppState extends State<MyApp> {
   void _onGetBondedDevices() async {
     List<Device>? devices;
     try {
-      devices = await _huweiWearEngineFlutterPlugin.getBondedDevices();
+      devices = await _huaweiWearEngineFlutterPlugin.getBondedDevices();
       setState(() {
         _devices = devices ?? [];
       });
@@ -180,7 +180,7 @@ class _MyAppState extends State<MyApp> {
     } else {
       bool? result;
       try {
-        result = await _huweiWearEngineFlutterPlugin.isAppInstalled(
+        result = await _huaweiWearEngineFlutterPlugin.isAppInstalled(
           _selectedDevice!,
           _pkgNameController.text,
         );
@@ -201,7 +201,7 @@ class _MyAppState extends State<MyApp> {
     } else {
       int? result;
       try {
-        result = await _huweiWearEngineFlutterPlugin.getAppVersion(
+        result = await _huaweiWearEngineFlutterPlugin.getAppVersion(
           _selectedDevice!,
           _pkgNameController.text,
         );
@@ -226,7 +226,7 @@ class _MyAppState extends State<MyApp> {
             _pingResult = resultCode;
           });
         });
-        await _huweiWearEngineFlutterPlugin.ping(
+        await _huaweiWearEngineFlutterPlugin.ping(
           _selectedDevice!,
           _pkgNameController.text,
           pingCallback,
@@ -252,7 +252,7 @@ class _MyAppState extends State<MyApp> {
           _onSendProgress,
           _onSendResult,
         );
-        await _huweiWearEngineFlutterPlugin.send(
+        await _huaweiWearEngineFlutterPlugin.send(
           _selectedDevice!,
           _pkgNameController.text,
           _fingerPrintController.text,

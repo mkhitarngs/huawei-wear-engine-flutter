@@ -1,7 +1,5 @@
-package com.example.huwei_wear_engine_flutter
+package com.oliver404.flutter.plugin.huawei_wear_engine
 
-import android.app.Activity
-import android.app.Notification.WearableExtender
 import android.os.Looper
 import android.util.Log
 import com.huawei.wearengine.auth.AuthCallback
@@ -15,12 +13,11 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.EventChannel
-import java.util.logging.Handler
 
 private const val TAG = "HwWearEngineFlutter"
 
-/** HuweiWearEngineFlutterPlugin */
-class HuweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHandler {
+/** HuaweiWearEngineFlutterPlugin */
+class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHandler {
     /// The MethodChannel that will the communication between Flutter and native Android
     ///
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
@@ -31,8 +28,8 @@ class HuweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventChan
     private lateinit var wearEngineController: WearEngineController
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "huwei_wear_engine_flutter")
-        eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, "com.example.huwei_wear_engine_flutter/wear_engine")
+        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "huawei_wear_engine")
+        eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, "com.oliver404.flutter.plugin.huawei_wear_engine/wear_engine")
         wearEngineController = WearEngineController(flutterPluginBinding.applicationContext)
         channel.setMethodCallHandler(this)
         eventChannel.setStreamHandler(this)

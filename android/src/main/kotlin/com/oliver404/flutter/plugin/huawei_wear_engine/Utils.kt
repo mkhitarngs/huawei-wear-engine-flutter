@@ -1,4 +1,4 @@
-package com.example.huwei_wear_engine_flutter
+package com.oliver404.flutter.plugin.huawei_wear_engine
 
 import com.huawei.wearengine.auth.Permission
 import com.huawei.wearengine.device.Device

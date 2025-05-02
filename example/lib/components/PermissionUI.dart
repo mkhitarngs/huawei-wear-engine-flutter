@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:huwei_wear_engine_flutter/Permission.dart';
+import 'package:huawei_wear_engine_flutter/Permission.dart';
 
 class PermissionComponent extends StatelessWidget {
   final bool checked;

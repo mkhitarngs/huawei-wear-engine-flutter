@@ -1,4 +1,4 @@
-package com.example.huwei_wear_engine_flutter_example
+package com.oliver404.flutter.plugin.huawei_wear_engine_example
 
 import io.flutter.embedding.android.FlutterActivity
 

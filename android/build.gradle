@@ -1,4 +1,4 @@
-group = "com.example.huwei_wear_engine_flutter"
+group = "com.oliver404.plugin.flutter.huawei_wear_engine"
 version = "1.0-SNAPSHOT"
 
 buildscript {
@@ -28,7 +28,7 @@ apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 
 android {
-    namespace = "com.example.huwei_wear_engine_flutter"
+    namespace = "com.oliver404.flutter.plugin.huawei_wear_engine"
 
     compileSdk = 35
 

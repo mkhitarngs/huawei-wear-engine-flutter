@@ -1,4 +1,4 @@
-# huwei_wear_engine_flutter
+# huawei_wear_engine_flutter
 
 A new Flutter plugin project.
 

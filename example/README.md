@@ -1,6 +1,6 @@
-# huwei_wear_engine_flutter_example
+# huawei_wear_engine_flutter_example
 
-Demonstrates how to use the huwei_wear_engine_flutter plugin.
+Demonstrates how to use the huawei_wear_engine_flutter plugin.
 
 ## Getting Started
 

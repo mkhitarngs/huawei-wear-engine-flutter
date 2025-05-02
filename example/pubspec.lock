@@ -106,7 +106,7 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  huwei_wear_engine_flutter:
+  huawei_wear_engine_flutter:
     dependency: "direct main"
     description:
       path: ".."

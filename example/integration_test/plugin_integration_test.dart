@@ -10,13 +10,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import 'package:huwei_wear_engine_flutter/huwei_wear_engine_flutter.dart';
+import 'package:huawei_wear_engine_flutter/huawei_wear_engine.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('getPlatformVersion test', (WidgetTester tester) async {
-    final HuweiWearEngineFlutter plugin = HuweiWearEngineFlutter();
+    final HuaweiWearEngine plugin = HuaweiWearEngine();
     final String? version = await plugin.getPlatformVersion();
     // The version string depends on the host platform running the test, so
     // just assert that some non-empty string is returned.

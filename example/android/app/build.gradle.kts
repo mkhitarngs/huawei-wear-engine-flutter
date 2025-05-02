@@ -18,7 +18,7 @@ if (configFile.exists()) {
 }
 
 android {
-    namespace = "com.example.huwei_wear_engine_flutter_example"
+    namespace = "com.oliver404.flutter.plugin.huawei_wear_engine_example"
     compileSdk = flutter.compileSdkVersion
 //    ndkVersion = flutter.ndkVersion
     ndkVersion = "27.0.12077973"

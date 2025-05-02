@@ -1,30 +1,30 @@
-import 'package:huwei_wear_engine_flutter/Device.dart';
-import 'package:huwei_wear_engine_flutter/Permission.dart';
+
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'AuthCallback.dart';
+import 'Device.dart';
+import 'Permission.dart';
 import 'PingCallback.dart';
 import 'SendCallback.dart';
-import 'huwei_wear_engine_flutter_method_channel.dart';
+import 'huawei_wear_engine_method_channel.dart';
 
-abstract class HuweiWearEngineFlutterPlatform extends PlatformInterface {
-  /// Constructs a HuweiWearEngineFlutterPlatform.
-  HuweiWearEngineFlutterPlatform() : super(token: _token);
+abstract class HuaweiWearEnginePlatform extends PlatformInterface {
+  /// Constructs a HuaweiWearEngineFlutterPlatform.
+  HuaweiWearEnginePlatform() : super(token: _token);
 
   static final Object _token = Object();
 
-  static HuweiWearEngineFlutterPlatform _instance =
-      MethodChannelHuweiWearEngineFlutter();
+  static HuaweiWearEnginePlatform _instance = MethodChannelHuaweiWearEngine();
 
-  /// The default instance of [HuweiWearEngineFlutterPlatform] to use.
+  /// The default instance of [HuaweiWearEnginePlatform] to use.
   ///
-  /// Defaults to [MethodChannelHuweiWearEngineFlutter].
-  static HuweiWearEngineFlutterPlatform get instance => _instance;
+  /// Defaults to [MethodChannelHuweiWearEngine].
+  static HuaweiWearEnginePlatform get instance => _instance;
 
   /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [HuweiWearEngineFlutterPlatform] when
+  /// platform-specific class that extends [HuaweiWearEngineFlutterPlatform] when
   /// they register themselves.
-  static set instance(HuweiWearEngineFlutterPlatform instance) {
+  static set instance(HuaweiWearEnginePlatform instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }

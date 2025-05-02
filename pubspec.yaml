@@ -1,4 +1,4 @@
-name: huwei_wear_engine_flutter
+name: huawei_wear_engine_flutter
 description: "A new Flutter plugin project."
 version: 0.0.1
 homepage:
@@ -35,8 +35,8 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.example.huwei_wear_engine_flutter
-        pluginClass: HuweiWearEngineFlutterPlugin
+        package: com.oliver404.flutter.plugin.huawei_wear_engine
+        pluginClass: HuaweiWearEngineFlutterPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

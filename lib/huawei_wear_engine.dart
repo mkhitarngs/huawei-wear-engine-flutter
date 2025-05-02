@@ -1,26 +1,26 @@
-import 'package:huwei_wear_engine_flutter/AuthCallback.dart';
-import 'package:huwei_wear_engine_flutter/Device.dart';
-import 'package:huwei_wear_engine_flutter/Permission.dart';
-import 'package:huwei_wear_engine_flutter/PingCallback.dart';
+import 'package:huawei_wear_engine_flutter/AuthCallback.dart';
+import 'package:huawei_wear_engine_flutter/Device.dart';
+import 'package:huawei_wear_engine_flutter/Permission.dart';
+import 'package:huawei_wear_engine_flutter/PingCallback.dart';
 
 import 'SendCallback.dart';
-import 'huwei_wear_engine_flutter_platform_interface.dart';
+import 'huawei_wear_engine_platform_interface.dart';
 
-class HuweiWearEngineFlutter {
+class HuaweiWearEngine {
   Future<String?> getPlatformVersion() {
-    return HuweiWearEngineFlutterPlatform.instance.getPlatformVersion();
+    return HuaweiWearEnginePlatform.instance.getPlatformVersion();
   }
 
   Future<bool?> hasAvailableDevices() {
-    return HuweiWearEngineFlutterPlatform.instance.hasAvailableDevices();
+    return HuaweiWearEnginePlatform.instance.hasAvailableDevices();
   }
 
   Future<bool?> checkPermission(Permission permission) {
-    return HuweiWearEngineFlutterPlatform.instance.checkPermission(permission);
+    return HuaweiWearEnginePlatform.instance.checkPermission(permission);
   }
 
   Future<List<bool>?> checkPermissions(List<Permission> permissions) {
-    return HuweiWearEngineFlutterPlatform.instance.checkPermissions(
+    return HuaweiWearEnginePlatform.instance.checkPermissions(
       permissions,
     );
   }
@@ -29,25 +29,25 @@ class HuweiWearEngineFlutter {
     AuthCallBack authCallback,
     List<Permission> permissions,
   ) {
-    return HuweiWearEngineFlutterPlatform.instance.requestPermission(
+    return HuaweiWearEnginePlatform.instance.requestPermission(
       authCallback,
       permissions,
     );
   }
 
   Future<List<Device>?> getBondedDevices() {
-    return HuweiWearEngineFlutterPlatform.instance.getBondedDevices();
+    return HuaweiWearEnginePlatform.instance.getBondedDevices();
   }
 
   Future<bool?> isAppInstalled(Device device, String pkgName) async {
-    return HuweiWearEngineFlutterPlatform.instance.isAppInstalled(
+    return HuaweiWearEnginePlatform.instance.isAppInstalled(
       device,
       pkgName,
     );
   }
 
   Future<int?> getAppVersion(Device device, String pkgName) async {
-    return HuweiWearEngineFlutterPlatform.instance.getAppVersion(
+    return HuaweiWearEnginePlatform.instance.getAppVersion(
       device,
       pkgName,
     );
@@ -58,7 +58,7 @@ class HuweiWearEngineFlutter {
     String pkgName,
     PingCallback pingCallback,
   ) async {
-    return HuweiWearEngineFlutterPlatform.instance.ping(
+    return HuaweiWearEnginePlatform.instance.ping(
       device,
       pkgName,
       pingCallback,
@@ -72,7 +72,7 @@ class HuweiWearEngineFlutter {
       String sendMessage,
       SendCallback sendCallback,
       ) async {
-    return HuweiWearEngineFlutterPlatform.instance.send(
+    return HuaweiWearEnginePlatform.instance.send(
       connectedDevice,
       pkgName,
       fingerPrint,

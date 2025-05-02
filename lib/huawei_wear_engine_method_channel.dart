@@ -1,22 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:huwei_wear_engine_flutter/AuthCallback.dart';
+import 'package:huawei_wear_engine_flutter/AuthCallback.dart';
+import 'package:huawei_wear_engine_flutter/huawei_wear_engine.dart';
 
 import 'Device.dart';
 import 'Permission.dart';
 import 'PingCallback.dart';
 import 'SendCallback.dart';
-import 'huwei_wear_engine_flutter_platform_interface.dart';
+import 'huawei_wear_engine_platform_interface.dart';
 
-/// An implementation of [HuweiWearEngineFlutterPlatform] that uses method channels.
-class MethodChannelHuweiWearEngineFlutter
-    extends HuweiWearEngineFlutterPlatform {
+/// An implementation of [HuaweiWearEnginePlatform] that uses method channels.
+class MethodChannelHuaweiWearEngine extends HuaweiWearEnginePlatform {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
-  final methodChannel = const MethodChannel('huwei_wear_engine_flutter');
+  final methodChannel = const MethodChannel('huawei_wear_engine');
   @visibleForTesting
   final eventChannel = const EventChannel(
-    "com.example.huwei_wear_engine_flutter/wear_engine",
+    "com.oliver404.flutter.plugin.huawei_wear_engine/wear_engine",
   );
 
   @override

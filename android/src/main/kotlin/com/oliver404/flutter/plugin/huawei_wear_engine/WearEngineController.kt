@@ -1,4 +1,4 @@
-package com.example.huwei_wear_engine_flutter
+package com.oliver404.flutter.plugin.huawei_wear_engine
 
 import android.content.Context
 import com.huawei.wearengine.HiWear
@@ -11,7 +11,6 @@ import com.huawei.wearengine.p2p.Message
 import com.huawei.wearengine.p2p.P2pClient
 import com.huawei.wearengine.p2p.PingCallback
 import com.huawei.wearengine.p2p.SendCallback
-import java.nio.charset.StandardCharsets
 
 
 class WearEngineController(context: Context) {
