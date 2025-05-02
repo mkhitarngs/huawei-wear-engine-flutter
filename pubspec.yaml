@@ -1,6 +1,6 @@
 name: huawei_wear_engine_flutter
-description: "A new Flutter plugin project."
-version: 0.0.1
+description: "Wear engine from Huawei for Flutter project (only Android)"
+version: 0.1.0
 homepage:
 
 environment:
