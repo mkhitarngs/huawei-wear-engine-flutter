@@ -157,8 +157,8 @@ class WearEngineController(context: Context) {
         onSuccess: () -> Unit,
         onFailure: (Exception) -> Unit,
     ) {
-        p2pClient.setPeerPkgName(pkgName);
-        p2pClient.setPeerFingerPrint(fingerPrint);
+        p2pClient.setPeerPkgName(pkgName)
+        p2pClient.setPeerFingerPrint(fingerPrint)
         p2pClient.send(connectedDevice, sendMessage, sendCallback)
             .addOnSuccessListener{ onSuccess() }
             .addOnFailureListener(onFailure)

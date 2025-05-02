@@ -247,7 +247,6 @@ class _MyAppState extends State<MyApp> {
     } else if (_msgController.text.isEmpty) {
       _showToastMessage("Message cannot be empty");
     } else {
-      int? result;
       try {
         _SendCallbackImpl sendCallback = _SendCallbackImpl(
           _onSendProgress,

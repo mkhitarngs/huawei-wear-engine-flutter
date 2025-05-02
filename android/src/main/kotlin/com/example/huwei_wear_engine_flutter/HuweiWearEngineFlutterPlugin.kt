@@ -271,7 +271,7 @@ class HuweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventChan
                 android.os.Handler(
                     Looper.getMainLooper()
                 ).post {
-                    Log.i(TAG, "Ping - On Send Result")
+                    Log.i(TAG, "Send - On Send Result")
                     sendEventWithResult("onSendResult", codeResult)
                 }
             }
@@ -280,7 +280,7 @@ class HuweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventChan
                 android.os.Handler(
                     Looper.getMainLooper()
                 ).post {
-                    Log.i(TAG, "Ping - On Send Progress")
+                    Log.i(TAG, "Send - On Send Progress")
                     sendEventWithResult("onSendProgress", progress)
                 }
             }

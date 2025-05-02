@@ -75,6 +75,6 @@ abstract class HuweiWearEngineFlutterPlatform extends PlatformInterface {
     String sendMessage,
     SendCallback sendCallback,
   ) {
-    throw UnimplementedError('ping() has not been implemented.');
+    throw UnimplementedError('send() has not been implemented.');
   }
 }
