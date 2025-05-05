@@ -4,7 +4,6 @@ gradle-wrapper.jar
 /gradlew
 /gradlew.bat
 /local.properties
-/config.properties
 GeneratedPluginRegistrant.java
 .cxx/
 
