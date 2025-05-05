@@ -1,7 +1,8 @@
 name: huawei_wear_engine_flutter
 description: "Wear engine from Huawei for Flutter project (only Android)"
 version: 0.1.0
-homepage:
+homepage: https://github.com/Oliver404/huawei-wear-engine-flutter
+repository: https://github.com/Oliver404/huawei-wear-engine-flutter
 
 environment:
   sdk: ^3.7.2
