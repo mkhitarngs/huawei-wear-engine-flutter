@@ -8,8 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:huawei_wear_engine_flutter/AuthCallback.dart';
 import 'package:huawei_wear_engine_flutter/Device.dart';
+import 'package:huawei_wear_engine_flutter/Message.dart';
 import 'package:huawei_wear_engine_flutter/Permission.dart';
 import 'package:huawei_wear_engine_flutter/PingCallback.dart';
+import 'package:huawei_wear_engine_flutter/ReceiverCallback.dart';
 import 'package:huawei_wear_engine_flutter/SendCallback.dart';
 import 'package:huawei_wear_engine_flutter_example/components/PermissionUI.dart';
 import 'package:huawei_wear_engine_flutter_example/utils/Pair.dart';
@@ -43,6 +45,8 @@ class _MyAppState extends State<MyApp> {
   bool? _isAppInstalled = null;
   int? _appVersion = null;
   int? _pingResult = null;
+  String? _lastReceivedMessage = null;
+  bool _isReceiverRegistered = false;
 
   // UI status controls
   final TextEditingController _pkgNameController = TextEditingController();
@@ -265,6 +269,49 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  void _onToggleReceiver() async {
+    if (_isReceiverRegistered) {
+      try {
+        await _huaweiWearEngineFlutterPlugin.unregisterReceiver();
+        setState(() {
+          _isReceiverRegistered = false;
+        });
+        _showToastMessage("Receiver unregistered");
+      } on PlatformException {
+        printError("Oliver404 - unregisterReceiver - ERROR");
+      }
+    } else {
+      if (_selectedDevice == null) {
+        _showToastMessage("Select a device!!!");
+      } else if (_pkgNameController.text.isEmpty) {
+        _showToastMessage("Package name cannot be empty");
+      } else if (_fingerPrintController.text.isEmpty) {
+        _showToastMessage("Finger print cannot be empty");
+      } else {
+        try {
+          _ReceiverCallbackImpl receiverCallback = _ReceiverCallbackImpl((message) {
+            setState(() {
+              _lastReceivedMessage = String.fromCharCodes(message.payload);
+            });
+            _showToastMessage("Message received!");
+          });
+          await _huaweiWearEngineFlutterPlugin.registerReceiver(
+            device: _selectedDevice!,
+            pkgName: _pkgNameController.text,
+            fingerPrint: _fingerPrintController.text,
+            receiverCallback: receiverCallback,
+          );
+          setState(() {
+            _isReceiverRegistered = true;
+          });
+          _showToastMessage("Receiver registered");
+        } on PlatformException {
+          printError("Oliver404 - registerReceiver - ERROR");
+        }
+      }
+    }
+  }
+
   void _onSendProgress(int progress) {
     _showToastMessage("Message send progress: $progress");
   }
@@ -292,6 +339,7 @@ class _MyAppState extends State<MyApp> {
                 _sectionDevices(context),
                 _appSection(context),
                 _messageSection(context),
+                _receiverSection(context),
               ],
             ),
           ),
@@ -530,6 +578,39 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
+
+  Widget _receiverSection(BuildContext context) {
+    return _stepSection(
+      "STEP 6: Receive message",
+      Column(
+        children: [
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: _onToggleReceiver,
+                child: Text(_isReceiverRegistered ? "Unregister Receiver" : "Register Receiver"),
+              ),
+              SizedBox(width: 16),
+              Icon(
+                Icons.circle,
+                color: _isReceiverRegistered ? Colors.green : Colors.red,
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Text("Last received message:"),
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(_lastReceivedMessage ?? "No message yet", style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _AuthCallbackImpl implements AuthCallBack {
@@ -574,5 +655,16 @@ class _SendCallbackImpl implements SendCallback {
   @override
   void onSendResult(int resultCode) {
     _onSendResult(resultCode);
+  }
+}
+
+class _ReceiverCallbackImpl implements ReceiverCallback {
+  final void Function(Message) _onReceive;
+
+  _ReceiverCallbackImpl(this._onReceive);
+
+  @override
+  void onReceive(Message message) {
+    _onReceive(message);
   }
 }

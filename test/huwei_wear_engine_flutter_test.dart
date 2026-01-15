@@ -3,6 +3,7 @@ import 'package:huawei_wear_engine_flutter/AuthCallback.dart';
 import 'package:huawei_wear_engine_flutter/Device.dart';
 import 'package:huawei_wear_engine_flutter/Permission.dart';
 import 'package:huawei_wear_engine_flutter/PingCallback.dart';
+import 'package:huawei_wear_engine_flutter/ReceiverCallback.dart';
 import 'package:huawei_wear_engine_flutter/SendCallback.dart';
 import 'package:huawei_wear_engine_flutter/huawei_wear_engine.dart';
 import 'package:huawei_wear_engine_flutter/huawei_wear_engine_method_channel.dart';
@@ -67,6 +68,18 @@ class MockHuaweiWearEnginePlatform
   @override
   Future<void> send(Device connectedDevice, String pkgName, String fingerPrint, String sendMessage, SendCallback sendCallback) {
     // TODO: implement send
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> registerReceiver({required Device device, required String pkgName, required String fingerPrint, required ReceiverCallback receiverCallback}) {
+    // TODO: implement registerReceiver
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> unregisterReceiver() {
+    // TODO: implement unregisterReceiver
     throw UnimplementedError();
   }
 }

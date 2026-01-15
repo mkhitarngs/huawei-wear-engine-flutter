@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:huawei_wear_engine_flutter/AuthCallback.dart';
-import 'package:huawei_wear_engine_flutter/huawei_wear_engine.dart';
+import 'package:huawei_wear_engine_flutter/Message.dart';
+import 'package:huawei_wear_engine_flutter/ReceiverCallback.dart';
 
 import 'Device.dart';
 import 'Permission.dart';
@@ -16,7 +17,7 @@ class MethodChannelHuaweiWearEngine extends HuaweiWearEnginePlatform {
   final methodChannel = const MethodChannel('huawei_wear_engine');
   @visibleForTesting
   final eventChannel = const EventChannel(
-    "com.oliver404.flutter.plugin.huawei_wear_engine/wear_engine",
+    "com.mkhitarngs.flutter.plugin.huawei_wear_engine/wear_engine",
   );
 
   @override
@@ -167,5 +168,34 @@ class MethodChannelHuaweiWearEngine extends HuaweiWearEnginePlatform {
     });
 
     await methodChannel.invokeMethod<void>('send', params);
+  }
+
+  @override
+  Future<void> registerReceiver({
+    required Device device,
+    required String pkgName,
+    required String fingerPrint,
+    required ReceiverCallback receiverCallback,
+  }) async {
+    final params = {
+      "device": device.toMap(),
+      "pkgName": pkgName,
+      "fingerPrint": fingerPrint,
+    };
+
+    eventChannel.receiveBroadcastStream().listen((event) {
+      String type = event["type"];
+      if (type == "onMessageReceived") {
+        Map<String, dynamic> result = Map<String, dynamic>.from(event["result"]);
+        receiverCallback.onReceive(Message.fromMap(result));
+      }
+    });
+
+    await methodChannel.invokeMethod<void>('registerReceiver', params);
+  }
+
+  @override
+  Future<void> unregisterReceiver() async {
+    await methodChannel.invokeMethod<void>('unregisterReceiver');
   }
 }

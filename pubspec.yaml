@@ -2,8 +2,8 @@ name: huawei_wear_engine_flutter
 description: "Channel for Huawei's wear engine for Flutter (only Android)"
 version: 0.1.0
 license: MIT
-homepage: https://github.com/Oliver404/huawei-wear-engine-flutter
-repository: https://github.com/Oliver404/huawei-wear-engine-flutter
+homepage: https://github.com/mkhitarngs/huawei-wear-engine-flutter
+repository: https://github.com/mkhitarngs/huawei-wear-engine-flutter
 
 environment:
   sdk: ^3.7.2
@@ -37,7 +37,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.oliver404.flutter.plugin.huawei_wear_engine
+        package: com.mkhitarngs.flutter.plugin.huawei_wear_engine
         pluginClass: HuaweiWearEngineFlutterPlugin
 
   # To add assets to your plugin package, add an assets section, like this:

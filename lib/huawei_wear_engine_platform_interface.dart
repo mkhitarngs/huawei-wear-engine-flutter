@@ -3,8 +3,10 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'AuthCallback.dart';
 import 'Device.dart';
+import 'Message.dart';
 import 'Permission.dart';
 import 'PingCallback.dart';
+import 'ReceiverCallback.dart';
 import 'SendCallback.dart';
 import 'huawei_wear_engine_method_channel.dart';
 
@@ -76,5 +78,18 @@ abstract class HuaweiWearEnginePlatform extends PlatformInterface {
     SendCallback sendCallback,
   ) {
     throw UnimplementedError('send() has not been implemented.');
+  }
+
+  Future<void> registerReceiver({
+    required Device device,
+    required String pkgName,
+    required String fingerPrint,
+    required ReceiverCallback receiverCallback,
+  }) {
+    throw UnimplementedError('registerReceiver() has not been implemented.');
+  }
+
+  Future<void> unregisterReceiver() {
+    throw UnimplementedError('unregisterReceiver() has not been implemented.');
   }
 }

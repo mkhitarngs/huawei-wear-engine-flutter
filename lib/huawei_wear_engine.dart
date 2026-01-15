@@ -2,6 +2,7 @@ import 'package:huawei_wear_engine_flutter/AuthCallback.dart';
 import 'package:huawei_wear_engine_flutter/Device.dart';
 import 'package:huawei_wear_engine_flutter/Permission.dart';
 import 'package:huawei_wear_engine_flutter/PingCallback.dart';
+import 'package:huawei_wear_engine_flutter/ReceiverCallback.dart';
 
 import 'SendCallback.dart';
 import 'huawei_wear_engine_platform_interface.dart';
@@ -79,5 +80,23 @@ class HuaweiWearEngine {
       sendMessage,
       sendCallback
     );
+  }
+
+  Future<void> registerReceiver({
+    required Device device,
+    required String pkgName,
+    required String fingerPrint,
+    required ReceiverCallback receiverCallback,
+  }) async {
+    return HuaweiWearEnginePlatform.instance.registerReceiver(
+      device: device,
+      pkgName: pkgName,
+      fingerPrint: fingerPrint,
+      receiverCallback: receiverCallback,
+    );
+  }
+
+  Future<void> unregisterReceiver() async {
+    return HuaweiWearEnginePlatform.instance.unregisterReceiver();
   }
 }
