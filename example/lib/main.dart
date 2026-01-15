@@ -68,7 +68,7 @@ class _MyAppState extends State<MyApp> {
         _hasAvailableDevices = hasAvailableDevices ?? false;
       });
     } on PlatformException {
-      print("Oliver404 - HasAvailableDevices - ERROR");
+      print("mkhitarngs - HasAvailableDevices - ERROR");
     }
   }
 
@@ -87,7 +87,7 @@ class _MyAppState extends State<MyApp> {
         _permissions[permission]?.second = granted ?? false;
       });
     } on PlatformException {
-      print("Oliver404 - onCheckPermission - ERROR");
+      print("mkhitarngs - onCheckPermission - ERROR");
     }
   }
 
@@ -108,7 +108,7 @@ class _MyAppState extends State<MyApp> {
         }
       });
     } on PlatformException {
-      print("Oliver404 - onCheckPermissions - ERROR");
+      print("mkhitarngs - onCheckPermissions - ERROR");
     }
   }
 
@@ -122,7 +122,7 @@ class _MyAppState extends State<MyApp> {
         permission,
       ]);
     } on PlatformException {
-      printError("Oliver404 - onRequestPermission - ERROR");
+      printError("mkhitarngs - onRequestPermission - ERROR");
     }
   }
 
@@ -142,17 +142,17 @@ class _MyAppState extends State<MyApp> {
         permissionLst,
       );
     } on PlatformException {
-      print("Oliver404 - onRequestPermissions - ERROR");
+      print("mkhitarngs - onRequestPermissions - ERROR");
     }
   }
 
   void _onCancelRequestPermissions() async {
-    print("Oliver404 - onCancelRequestPermissions");
+    print("mkhitarngs - onCancelRequestPermissions");
     _showToastMessage("Request permissions canceled!!!");
   }
 
   void _onOkPermissions(List<Permission> grantedPermissions) {
-    printInfo("Oliver404 - onOkPermissions");
+    printInfo("mkhitarngs - onOkPermissions");
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   if (mounted) {
     setState(() {
@@ -172,7 +172,7 @@ class _MyAppState extends State<MyApp> {
         _devices = devices ?? [];
       });
     } on PlatformException {
-      printError("Oliver404 - onGetBondedDevices - ERROR");
+      printError("mkhitarngs - onGetBondedDevices - ERROR");
     }
   }
 
@@ -192,7 +192,7 @@ class _MyAppState extends State<MyApp> {
           _isAppInstalled = result;
         });
       } on PlatformException {
-        printError("Oliver404 - onVerifyAppIsInstalled - ERROR");
+        printError("mkhitarngs - onVerifyAppIsInstalled - ERROR");
       }
     }
   }
@@ -213,7 +213,7 @@ class _MyAppState extends State<MyApp> {
           _appVersion = result;
         });
       } on PlatformException {
-        printError("Oliver404 - onGetAppVersion - ERROR");
+        printError("mkhitarngs - onGetAppVersion - ERROR");
       }
     }
   }
@@ -236,7 +236,7 @@ class _MyAppState extends State<MyApp> {
           pingCallback,
         );
       } on PlatformException {
-        printError("Oliver404 - onPing - ERROR");
+        printError("mkhitarngs - onPing - ERROR");
       }
     }
   }
@@ -264,7 +264,7 @@ class _MyAppState extends State<MyApp> {
           sendCallback
         );
       } on PlatformException {
-        printError("Oliver404 - onGetAppVersion - ERROR");
+        printError("mkhitarngs - onGetAppVersion - ERROR");
       }
     }
   }
@@ -278,7 +278,7 @@ class _MyAppState extends State<MyApp> {
         });
         _showToastMessage("Receiver unregistered");
       } on PlatformException {
-        printError("Oliver404 - unregisterReceiver - ERROR");
+        printError("mkhitarngs - unregisterReceiver - ERROR");
       }
     } else {
       if (_selectedDevice == null) {
@@ -306,7 +306,7 @@ class _MyAppState extends State<MyApp> {
           });
           _showToastMessage("Receiver registered");
         } on PlatformException {
-          printError("Oliver404 - registerReceiver - ERROR");
+          printError("mkhitarngs - registerReceiver - ERROR");
         }
       }
     }

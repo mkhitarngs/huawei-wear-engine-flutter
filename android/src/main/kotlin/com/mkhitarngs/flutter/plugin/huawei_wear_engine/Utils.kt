@@ -17,7 +17,7 @@ fun String.toPermission(): Permission? {
 
 fun Message.toMap(): Map<String, Any> {
     return mapOf(
-        "payload" to this.payload,
+        "payload" to this.data,
     )
 }
 
