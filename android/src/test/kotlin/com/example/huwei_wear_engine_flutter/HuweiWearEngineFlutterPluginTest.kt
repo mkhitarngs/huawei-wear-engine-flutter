@@ -1,4 +1,4 @@
-package com.oliver404.flutter.plugin.huawei_wear_engine
+package com.mkhitarngs.flutter.plugin.huawei_wear_engine
 
 import com.oliverbotello.pluggin.huawei_wear_engine_flutter.HuaweiWearEngineFlutterPlugin
 import io.flutter.plugin.common.MethodCall
