@@ -82,6 +82,54 @@ class HuaweiWearEngine {
     );
   }
 
+  Future<void> sendFile(
+      Device connectedDevice,
+      String pkgName,
+      String fingerPrint,
+      String filePath,
+      SendCallback sendCallback,
+      ) async {
+    return HuaweiWearEnginePlatform.instance.sendFile(
+      connectedDevice,
+      pkgName,
+      fingerPrint,
+      filePath,
+      sendCallback
+    );
+  }
+
+  Future<void> sendJson(
+      Device connectedDevice,
+      String pkgName,
+      String fingerPrint,
+      Map<String, dynamic> jsonData,
+      SendCallback sendCallback,
+      ) async {
+    return HuaweiWearEnginePlatform.instance.sendJson(
+      connectedDevice,
+      pkgName,
+      fingerPrint,
+      jsonData,
+      sendCallback
+    );
+  }
+
+  Future<void> sendBytes(
+      Device connectedDevice,
+      String pkgName,
+      String fingerPrint,
+      List<int> bytes,
+      SendCallback sendCallback,
+      ) async {
+    return HuaweiWearEnginePlatform.instance.sendBytes(
+      connectedDevice,
+      pkgName,
+      fingerPrint,
+      bytes,
+      sendCallback
+    );
+  }
+
   Future<void> registerReceiver({
     required Device device,
     required String pkgName,

@@ -80,6 +80,36 @@ abstract class HuaweiWearEnginePlatform extends PlatformInterface {
     throw UnimplementedError('send() has not been implemented.');
   }
 
+  Future<void> sendFile(
+    Device connectedDevice,
+    String pkgName,
+    String fingerPrint,
+    String filePath,
+    SendCallback sendCallback,
+  ) {
+    throw UnimplementedError('sendFile() has not been implemented.');
+  }
+
+  Future<void> sendJson(
+    Device connectedDevice,
+    String pkgName,
+    String fingerPrint,
+    Map<String, dynamic> jsonData,
+    SendCallback sendCallback,
+  ) {
+    throw UnimplementedError('sendJson() has not been implemented.');
+  }
+
+  Future<void> sendBytes(
+    Device connectedDevice,
+    String pkgName,
+    String fingerPrint,
+    List<int> bytes,
+    SendCallback sendCallback,
+  ) {
+    throw UnimplementedError('sendBytes() has not been implemented.');
+  }
+
   Future<void> registerReceiver({
     required Device device,
     required String pkgName,

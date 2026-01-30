@@ -49,6 +49,9 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
             "getAppVersion" -> onGetAppVersion(call, result)
             "ping" -> onPing(call, result)
             "send" -> onSend(call, result)
+            "sendFile" -> onSendFile(call, result)
+            "sendJson" -> onSendJson(call, result)
+            "sendBytes" -> onSendBytes(call, result)
             "registerReceiver" -> onRegisterReceiver(call, result)
             "unregisterReceiver" -> onUnregisterReceiver(result)
             else -> result.notImplemented()
@@ -300,6 +303,160 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
             pkgName!!,
             fingerPrint!!,
             strMessage!!,
+            sendCallback,
+            onSend,
+            onFailure
+        )
+    }
+
+    private fun onSendFile(call: MethodCall, channelResult: Result) {
+        val mpDevice: Map<String, Any>? = call.argument<Map<String, Any>>("device")
+        val pkgName: String? = call.argument<String>("pkgName")
+        val fingerPrint: String? = call.argument<String>("fingerPrint")
+        val filePath: String? = call.argument<String>("filePath")
+
+        if (mpDevice?.isEmpty() != false) channelResult.error(TAG, "Device cannot be empty!!!", null)
+        if (pkgName.isNullOrBlank()) channelResult.error(TAG, "Package name cannot be empty!!!", null)
+        if (fingerPrint.isNullOrBlank()) channelResult.error(TAG, "Finger print name cannot be empty!!!", null)
+        if (filePath.isNullOrBlank()) channelResult.error(TAG, "File path cannot be empty!!!", null)
+
+        val device: Device = mapToDevice(mpDevice!!)
+        val sendCallback: SendCallback = object : SendCallback {
+            override fun onSendResult(codeResult: Int) {
+                android.os.Handler(
+                    Looper.getMainLooper()
+                ).post {
+                    Log.i(TAG, "SendFile - On Send Result")
+                    sendEventWithResult("onSendResult", codeResult)
+                }
+            }
+
+            override fun onSendProgress(progress: Long) {
+                android.os.Handler(
+                    Looper.getMainLooper()
+                ).post {
+                    Log.i(TAG, "SendFile - On Send Progress")
+                    sendEventWithResult("onSendProgress", progress)
+                }
+            }
+        }
+        val onSend: () -> Unit = {
+            Log.i(TAG, "SendFile - On Send")
+            channelResult.success(null)
+        }
+        val onFailure: (Exception) -> Unit = { e: Exception ->
+            Log.e(TAG, "SendFile - On Failure", e)
+            channelResult.error(TAG, e.message, null)
+        }
+
+        wearEngineController.sendFile(
+            device,
+            pkgName!!,
+            fingerPrint!!,
+            filePath!!,
+            sendCallback,
+            onSend,
+            onFailure
+        )
+    }
+
+    private fun onSendJson(call: MethodCall, channelResult: Result) {
+        val mpDevice: Map<String, Any>? = call.argument<Map<String, Any>>("device")
+        val pkgName: String? = call.argument<String>("pkgName")
+        val fingerPrint: String? = call.argument<String>("fingerPrint")
+        val jsonData: Map<String, Any>? = call.argument<Map<String, Any>>("jsonData")
+
+        if (mpDevice?.isEmpty() != false) channelResult.error(TAG, "Device cannot be empty!!!", null)
+        if (pkgName.isNullOrBlank()) channelResult.error(TAG, "Package name cannot be empty!!!", null)
+        if (fingerPrint.isNullOrBlank()) channelResult.error(TAG, "Finger print name cannot be empty!!!", null)
+        if (jsonData == null || jsonData.isEmpty()) channelResult.error(TAG, "JSON data cannot be empty!!!", null)
+
+        val device: Device = mapToDevice(mpDevice!!)
+        val sendCallback: SendCallback = object : SendCallback {
+            override fun onSendResult(codeResult: Int) {
+                android.os.Handler(
+                    Looper.getMainLooper()
+                ).post {
+                    Log.i(TAG, "SendJson - On Send Result")
+                    sendEventWithResult("onSendResult", codeResult)
+                }
+            }
+
+            override fun onSendProgress(progress: Long) {
+                android.os.Handler(
+                    Looper.getMainLooper()
+                ).post {
+                    Log.i(TAG, "SendJson - On Send Progress")
+                    sendEventWithResult("onSendProgress", progress)
+                }
+            }
+        }
+        val onSend: () -> Unit = {
+            Log.i(TAG, "SendJson - On Send")
+            channelResult.success(null)
+        }
+        val onFailure: (Exception) -> Unit = { e: Exception ->
+            Log.e(TAG, "SendJson - On Failure", e)
+            channelResult.error(TAG, e.message, null)
+        }
+
+        wearEngineController.sendJson(
+            device,
+            pkgName!!,
+            fingerPrint!!,
+            jsonData!!,
+            sendCallback,
+            onSend,
+            onFailure
+        )
+    }
+
+    private fun onSendBytes(call: MethodCall, channelResult: Result) {
+        val mpDevice: Map<String, Any>? = call.argument<Map<String, Any>>("device")
+        val pkgName: String? = call.argument<String>("pkgName")
+        val fingerPrint: String? = call.argument<String>("fingerPrint")
+        val bytes: List<Int>? = call.argument<List<Int>>("bytes")
+
+        if (mpDevice?.isEmpty() != false) channelResult.error(TAG, "Device cannot be empty!!!", null)
+        if (pkgName.isNullOrBlank()) channelResult.error(TAG, "Package name cannot be empty!!!", null)
+        if (fingerPrint.isNullOrBlank()) channelResult.error(TAG, "Finger print name cannot be empty!!!", null)
+        if (bytes == null || bytes.isEmpty()) channelResult.error(TAG, "Bytes cannot be empty!!!", null)
+
+        val device: Device = mapToDevice(mpDevice!!)
+        val sendCallback: SendCallback = object : SendCallback {
+            override fun onSendResult(codeResult: Int) {
+                android.os.Handler(
+                    Looper.getMainLooper()
+                ).post {
+                    Log.i(TAG, "SendBytes - On Send Result")
+                    sendEventWithResult("onSendResult", codeResult)
+                }
+            }
+
+            override fun onSendProgress(progress: Long) {
+                android.os.Handler(
+                    Looper.getMainLooper()
+                ).post {
+                    Log.i(TAG, "SendBytes - On Send Progress")
+                    sendEventWithResult("onSendProgress", progress)
+                }
+            }
+        }
+        val onSend: () -> Unit = {
+            Log.i(TAG, "SendBytes - On Send")
+            channelResult.success(null)
+        }
+        val onFailure: (Exception) -> Unit = { e: Exception ->
+            Log.e(TAG, "SendBytes - On Failure", e)
+            channelResult.error(TAG, e.message, null)
+        }
+
+        val byteArray = bytes!!.map { it.toByte() }.toByteArray()
+        wearEngineController.sendBytes(
+            device,
+            pkgName!!,
+            fingerPrint!!,
+            byteArray,
             sendCallback,
             onSend,
             onFailure

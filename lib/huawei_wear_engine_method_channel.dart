@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:huawei_wear_engine_flutter/AuthCallback.dart';
@@ -168,6 +171,93 @@ class MethodChannelHuaweiWearEngine extends HuaweiWearEnginePlatform {
     });
 
     await methodChannel.invokeMethod<void>('send', params);
+  }
+
+  @override
+  Future<void> sendFile(
+    Device connectedDevice,
+    String pkgName,
+    String fingerPrint,
+    String filePath,
+    SendCallback sendCallback,
+  ) async {
+    final params = {
+      "device": connectedDevice.toMap(),
+      "pkgName": pkgName,
+      "fingerPrint": fingerPrint,
+      "filePath": filePath,
+    };
+
+    eventChannel.receiveBroadcastStream().listen((event) {
+      String type = event["type"];
+      if (type == "onSendResult") {
+        int result = event["result"];
+        sendCallback.onSendResult(result);
+      } else if (type == "onSendProgress") {
+        int result = event["result"];
+        sendCallback.onSendProgress(result);
+      }
+    });
+
+    await methodChannel.invokeMethod<void>('sendFile', params);
+  }
+
+  @override
+  Future<void> sendJson(
+    Device connectedDevice,
+    String pkgName,
+    String fingerPrint,
+    Map<String, dynamic> jsonData,
+    SendCallback sendCallback,
+  ) async {
+    final params = {
+      "device": connectedDevice.toMap(),
+      "pkgName": pkgName,
+      "fingerPrint": fingerPrint,
+      "jsonData": jsonData,
+    };
+
+    eventChannel.receiveBroadcastStream().listen((event) {
+      String type = event["type"];
+      if (type == "onSendResult") {
+        int result = event["result"];
+        sendCallback.onSendResult(result);
+      } else if (type == "onSendProgress") {
+        int result = event["result"];
+        sendCallback.onSendProgress(result);
+      }
+    });
+
+    await methodChannel.invokeMethod<void>('sendJson', params);
+  }
+
+  @override
+  Future<void> sendBytes(
+    Device connectedDevice,
+    String pkgName,
+    String fingerPrint,
+    List<int> bytes,
+    SendCallback sendCallback,
+  ) async {
+    final params = {
+      "device": connectedDevice.toMap(),
+      "pkgName": pkgName,
+      "fingerPrint": fingerPrint,
+      "bytes": bytes,
+    };
+
+    eventChannel.receiveBroadcastStream().listen((event) {
+      String type = event["type"];
+      if (type == "onSendResult") {
+        int result = event["result"];
+        sendCallback.onSendResult(result);
+      } else if (type == "onSendProgress") {
+        int result = event["result"];
+        sendCallback.onSendProgress(result);
+      }
+    });
+
+    await methodChannel.invokeMethod<void>('sendBytes', params);
   }
 
   @override

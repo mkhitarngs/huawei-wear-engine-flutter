@@ -12,6 +12,8 @@ import com.huawei.wearengine.p2p.P2pClient
 import com.huawei.wearengine.p2p.PingCallback
 import com.huawei.wearengine.p2p.Receiver
 import com.huawei.wearengine.p2p.SendCallback
+import org.json.JSONObject
+import java.io.File
 
 
 class WearEngineController(context: Context) {
@@ -185,5 +187,104 @@ class WearEngineController(context: Context) {
         val builder = Message.Builder()
         builder.setPayload(message.encodeToByteArray())
         return builder.build()
+    }
+
+    fun buildMessageFromFile(filePath: String): Message {
+        val file = File(filePath)
+        if (!file.exists()) {
+            throw IllegalArgumentException("File does not exist: $filePath")
+        }
+        val builder = Message.Builder()
+        builder.setPayload(file.readBytes())
+        return builder.build()
+    }
+
+    fun buildMessageFromJson(jsonData: Map<String, Any>): Message {
+        val jsonObject = JSONObject(jsonData)
+        val jsonString = jsonObject.toString()
+        val builder = Message.Builder()
+        builder.setPayload(jsonString.encodeToByteArray())
+        return builder.build()
+    }
+
+    fun buildMessageFromBytes(bytes: ByteArray): Message {
+        val builder = Message.Builder()
+        builder.setPayload(bytes)
+        return builder.build()
+    }
+
+    fun sendFile(
+        connectedDevice: Device,
+        pkgName: String,
+        fingerPrint: String,
+        filePath: String,
+        sendCallback: SendCallback,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit,
+    ) {
+        try {
+            val message = buildMessageFromFile(filePath)
+            send(
+                connectedDevice,
+                pkgName,
+                fingerPrint,
+                message,
+                sendCallback,
+                onSuccess,
+                onFailure
+            )
+        } catch (e: Exception) {
+            onFailure(e)
+        }
+    }
+
+    fun sendJson(
+        connectedDevice: Device,
+        pkgName: String,
+        fingerPrint: String,
+        jsonData: Map<String, Any>,
+        sendCallback: SendCallback,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit,
+    ) {
+        try {
+            val message = buildMessageFromJson(jsonData)
+            send(
+                connectedDevice,
+                pkgName,
+                fingerPrint,
+                message,
+                sendCallback,
+                onSuccess,
+                onFailure
+            )
+        } catch (e: Exception) {
+            onFailure(e)
+        }
+    }
+
+    fun sendBytes(
+        connectedDevice: Device,
+        pkgName: String,
+        fingerPrint: String,
+        bytes: ByteArray,
+        sendCallback: SendCallback,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit,
+    ) {
+        try {
+            val message = buildMessageFromBytes(bytes)
+            send(
+                connectedDevice,
+                pkgName,
+                fingerPrint,
+                message,
+                sendCallback,
+                onSuccess,
+                onFailure
+            )
+        } catch (e: Exception) {
+            onFailure(e)
+        }
     }
 }
