@@ -1,6 +1,6 @@
 name: huawei_wear_engine_flutter
 description: "Channel for Huawei's wear engine for Flutter (only Android)"
-version: 0.1.0
+version: 0.1.1
 license: MIT
 homepage: https://github.com/mkhitarngs/huawei-wear-engine-flutter
 repository: https://github.com/mkhitarngs/huawei-wear-engine-flutter
