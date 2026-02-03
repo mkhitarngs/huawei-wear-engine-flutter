@@ -82,6 +82,24 @@ class MockHuaweiWearEnginePlatform
     // TODO: implement unregisterReceiver
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> sendBytes(Device connectedDevice, String pkgName, String fingerPrint, List<int> bytes, SendCallback sendCallback) {
+    // TODO: implement sendBytes
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> sendFile(Device connectedDevice, String pkgName, String fingerPrint, String filePath, SendCallback sendCallback) {
+    // TODO: implement sendFile
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> sendJson(Device connectedDevice, String pkgName, String fingerPrint, Map<String, dynamic> jsonData, SendCallback sendCallback) {
+    // TODO: implement sendJson
+    throw UnimplementedError();
+  }
 }
 
 void main() {

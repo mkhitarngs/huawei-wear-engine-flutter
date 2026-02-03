@@ -156,7 +156,7 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
                 android.os.Handler(
                     Looper.getMainLooper()
                 ).post {
-                sendEvent("onCancel")
+                    sendEvent("onCancel")
                 }
             }
         }
@@ -478,7 +478,13 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
             messageReceiver = Receiver { message ->
                 android.os.Handler(Looper.getMainLooper()).post {
                     Log.i(TAG, "MessageReceiver - onReceive")
-                    sendEventWithResult("onMessageReceived", message.toMap())
+                    if (eventSink == null) {
+                        Log.e(TAG, "EventSink is null! Cannot send message to Flutter")
+                    } else {
+                        val messageMap = message.toMap()
+                        Log.d(TAG, "Sending message to Flutter: $messageMap")
+                        sendEventWithResult("onMessageReceived", messageMap)
+                    }
                 }
             }
         }
