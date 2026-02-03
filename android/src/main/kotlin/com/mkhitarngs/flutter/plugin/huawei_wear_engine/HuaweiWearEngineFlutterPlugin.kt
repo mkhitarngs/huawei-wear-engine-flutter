@@ -79,6 +79,10 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
         eventSink?.success(mapOf("type" to event, "result" to result))
     }
 
+    private fun sendEventWithResultAndOpId(event: String, result: Any, opId: Int) {
+        eventSink?.success(mapOf("type" to event, "result" to result, "opId" to opId))
+    }
+
     private fun onHasAvailableDevices(channelResult: Result) {
         val onResult: (Boolean) -> Unit = { result: Boolean ->
             Log.i(TAG, "Has Available Devices - On Result")
@@ -95,7 +99,10 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
         val strPermission = call.argument<String>("permission")
         val permission: Permission? = strPermission?.toPermission()
 
-        if (permission == null) channelResult.error(TAG, "Permission dose n't exist!!!", null)
+        if (permission == null) {
+            channelResult.error(TAG, "Permission doesn't exist!!!", null)
+            return
+        }
 
         val onResult: (Boolean) -> Unit = { result: Boolean ->
             Log.i(TAG, "Check Permission - On Result")
@@ -115,8 +122,10 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
             ?.mapNotNull { permission -> permission.toPermission() }
             ?.toTypedArray()
 
-        if ((permissions?.size ?: 0) == 0)
+        if ((permissions?.size ?: 0) == 0) {
             channelResult.error(TAG, "Permissions cannot be empty!!!", null)
+            return
+        }
 
         val onResult: (Array<out Boolean>) -> Unit = { result: Array<out Boolean> ->
             Log.i(TAG, "Check Permissions - On Result")
@@ -136,8 +145,10 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
             ?.mapNotNull { permission -> permission.toPermission() }
             ?.toTypedArray()
 
-        if ((permissions?.size ?: 0) == 0)
+        if ((permissions?.size ?: 0) == 0) {
             channelResult.error(TAG, "Permissions cannot be empty!!!", null)
+            return
+        }
 
         val authCallback: AuthCallback = object : AuthCallback {
             override fun onOk(grantedPermissions: Array<out Permission>?) {
@@ -156,7 +167,7 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
                 android.os.Handler(
                     Looper.getMainLooper()
                 ).post {
-                    sendEvent("onCancel")
+                sendEvent("onCancel")
                 }
             }
         }
@@ -194,8 +205,14 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
         val mpDevice: Map<String, Any>? = call.argument<Map<String, Any>>("device")
         val pkgName: String? = call.argument<String>("pkgName")
 
-        if (mpDevice?.isEmpty() != false) channelResult.error(TAG, "Device cannot be empty!!!", null)
-        if (pkgName.isNullOrBlank()) channelResult.error(TAG, "Package name cannot be empty!!!", null)
+        if (mpDevice?.isEmpty() != false) {
+            channelResult.error(TAG, "Device cannot be empty!!!", null)
+            return
+        }
+        if (pkgName.isNullOrBlank()) {
+            channelResult.error(TAG, "Package name cannot be empty!!!", null)
+            return
+        }
 
         val device: Device = mapToDevice(mpDevice!!)
         val onResult: (Boolean) -> Unit = { result ->
@@ -214,8 +231,14 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
         val mpDevice: Map<String, Any>? = call.argument<Map<String, Any>>("device")
         val pkgName: String? = call.argument<String>("pkgName")
 
-        if (mpDevice?.isEmpty() != false) channelResult.error(TAG, "Device cannot be empty!!!", null)
-        if (pkgName.isNullOrBlank()) channelResult.error(TAG, "Package name cannot be empty!!!", null)
+        if (mpDevice?.isEmpty() != false) {
+            channelResult.error(TAG, "Device cannot be empty!!!", null)
+            return
+        }
+        if (pkgName.isNullOrBlank()) {
+            channelResult.error(TAG, "Package name cannot be empty!!!", null)
+            return
+        }
 
         val device: Device = mapToDevice(mpDevice!!)
         val onResult: (Int) -> Unit = { result ->
@@ -234,8 +257,14 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
         val mpDevice: Map<String, Any>? = call.argument<Map<String, Any>>("device")
         val pkgName: String? = call.argument<String>("pkgName")
 
-        if (mpDevice?.isEmpty() != false) channelResult.error(TAG, "Device cannot be empty!!!", null)
-        if (pkgName.isNullOrBlank()) channelResult.error(TAG, "Package name cannot be empty!!!", null)
+        if (mpDevice?.isEmpty() != false) {
+            channelResult.error(TAG, "Device cannot be empty!!!", null)
+            return
+        }
+        if (pkgName.isNullOrBlank()) {
+            channelResult.error(TAG, "Package name cannot be empty!!!", null)
+            return
+        }
 
         val device: Device = mapToDevice(mpDevice!!)
         val pingCallback: PingCallback = PingCallback { result ->
@@ -259,24 +288,53 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
     }
 
     private fun onSend(call: MethodCall, channelResult: Result) {
+        Log.d(TAG, "[Kotlin] [SEND] onSend method called")
         val mpDevice: Map<String, Any>? = call.argument<Map<String, Any>>("device")
         val pkgName: String? = call.argument<String>("pkgName")
         val fingerPrint: String? = call.argument<String>("fingerPrint")
         val strMessage: String? = call.argument<String>("message")
+        val opId: Int? = call.argument<Int>("opId")
 
-        if (mpDevice?.isEmpty() != false) channelResult.error(TAG, "Device cannot be empty!!!", null)
-        if (pkgName.isNullOrBlank()) channelResult.error(TAG, "Package name cannot be empty!!!", null)
-        if (fingerPrint.isNullOrBlank()) channelResult.error(TAG, "Finger print name cannot be empty!!!", null)
-        if (strMessage.isNullOrBlank()) channelResult.error(TAG, "Message name cannot be empty!!!", null)
+        Log.d(TAG, "[Kotlin] [SEND] Extracted parameters - pkgName: $pkgName, fingerPrint: $fingerPrint, messageLength: ${strMessage?.length}, opId: $opId")
 
+        if (mpDevice?.isEmpty() != false) {
+            Log.e(TAG, "[Kotlin] [SEND] Validation failed: Device cannot be empty")
+            channelResult.error(TAG, "Device cannot be empty!!!", null)
+            return
+        }
+        if (pkgName.isNullOrBlank()) {
+            Log.e(TAG, "[Kotlin] [SEND] Validation failed: Package name cannot be empty")
+            channelResult.error(TAG, "Package name cannot be empty!!!", null)
+            return
+        }
+        if (fingerPrint.isNullOrBlank()) {
+            Log.e(TAG, "[Kotlin] [SEND] Validation failed: Finger print cannot be empty")
+            channelResult.error(TAG, "Finger print name cannot be empty!!!", null)
+            return
+        }
+        if (strMessage.isNullOrBlank()) {
+            Log.e(TAG, "[Kotlin] [SEND] Validation failed: Message cannot be empty")
+            channelResult.error(TAG, "Message name cannot be empty!!!", null)
+            return
+        }
+        if (opId == null) {
+            Log.e(TAG, "[Kotlin] [SEND] Validation failed: Operation ID cannot be null")
+            channelResult.error(TAG, "Operation ID cannot be null!!!", null)
+            return
+        }
+
+        Log.d(TAG, "[Kotlin] [SEND] All validations passed")
         val device: Device = mapToDevice(mpDevice!!)
+        Log.d(TAG, "[Kotlin] [SEND] Device mapped: ${device.toMap()}")
+
         val sendCallback: SendCallback = object : SendCallback {
             override fun onSendResult(codeResult: Int) {
                 android.os.Handler(
                     Looper.getMainLooper()
                 ).post {
-                    Log.i(TAG, "Send - On Send Result")
-                    sendEventWithResult("onSendResult", codeResult)
+                    Log.i(TAG, "[Kotlin] [SEND] onSendResult callback - code: $codeResult, opId: $opId")
+                    sendEventWithResultAndOpId("onSendResult", codeResult, opId)
+                    Log.d(TAG, "[Kotlin] [SEND] onSendResult event sent to Flutter")
                 }
             }
 
@@ -284,20 +342,22 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
                 android.os.Handler(
                     Looper.getMainLooper()
                 ).post {
-                    Log.i(TAG, "Send - On Send Progress")
-                    sendEventWithResult("onSendProgress", progress)
+                    Log.i(TAG, "[Kotlin] [SEND] onSendProgress callback - progress: $progress, opId: $opId")
+                    sendEventWithResultAndOpId("onSendProgress", progress, opId)
+                    Log.d(TAG, "[Kotlin] [SEND] onSendProgress event sent to Flutter")
                 }
             }
         }
         val onSend: () -> Unit = {
-            Log.i(TAG, "Send - On Send")
+            Log.i(TAG, "[Kotlin] [SEND] onSend success callback")
             channelResult.success(null)
         }
         val onFailure: (Exception) -> Unit = { e: Exception ->
-            Log.e(TAG, "Send - On Failure", e)
+            Log.e(TAG, "[Kotlin] [SEND] onFailure callback", e)
             channelResult.error(TAG, e.message, null)
         }
 
+        Log.d(TAG, "[Kotlin] [SEND] Calling wearEngineController.send")
         wearEngineController.send(
             device,
             pkgName!!,
@@ -307,27 +367,57 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
             onSend,
             onFailure
         )
+        Log.d(TAG, "[Kotlin] [SEND] wearEngineController.send call completed")
     }
 
     private fun onSendFile(call: MethodCall, channelResult: Result) {
+        Log.d(TAG, "[Kotlin] [SEND_FILE] onSendFile method called")
         val mpDevice: Map<String, Any>? = call.argument<Map<String, Any>>("device")
         val pkgName: String? = call.argument<String>("pkgName")
         val fingerPrint: String? = call.argument<String>("fingerPrint")
         val filePath: String? = call.argument<String>("filePath")
+        val opId: Int? = call.argument<Int>("opId")
 
-        if (mpDevice?.isEmpty() != false) channelResult.error(TAG, "Device cannot be empty!!!", null)
-        if (pkgName.isNullOrBlank()) channelResult.error(TAG, "Package name cannot be empty!!!", null)
-        if (fingerPrint.isNullOrBlank()) channelResult.error(TAG, "Finger print name cannot be empty!!!", null)
-        if (filePath.isNullOrBlank()) channelResult.error(TAG, "File path cannot be empty!!!", null)
+        Log.d(TAG, "[Kotlin] [SEND_FILE] Extracted parameters - pkgName: $pkgName, fingerPrint: $fingerPrint, filePath: $filePath, opId: $opId")
 
+        if (mpDevice?.isEmpty() != false) {
+            Log.e(TAG, "[Kotlin] [SEND_FILE] Validation failed: Device cannot be empty")
+            channelResult.error(TAG, "Device cannot be empty!!!", null)
+            return
+        }
+        if (pkgName.isNullOrBlank()) {
+            Log.e(TAG, "[Kotlin] [SEND_FILE] Validation failed: Package name cannot be empty")
+            channelResult.error(TAG, "Package name cannot be empty!!!", null)
+            return
+        }
+        if (fingerPrint.isNullOrBlank()) {
+            Log.e(TAG, "[Kotlin] [SEND_FILE] Validation failed: Finger print cannot be empty")
+            channelResult.error(TAG, "Finger print name cannot be empty!!!", null)
+            return
+        }
+        if (filePath.isNullOrBlank()) {
+            Log.e(TAG, "[Kotlin] [SEND_FILE] Validation failed: File path cannot be empty")
+            channelResult.error(TAG, "File path cannot be empty!!!", null)
+            return
+        }
+        if (opId == null) {
+            Log.e(TAG, "[Kotlin] [SEND_FILE] Validation failed: Operation ID cannot be null")
+            channelResult.error(TAG, "Operation ID cannot be null!!!", null)
+            return
+        }
+
+        Log.d(TAG, "[Kotlin] [SEND_FILE] All validations passed")
         val device: Device = mapToDevice(mpDevice!!)
+        Log.d(TAG, "[Kotlin] [SEND_FILE] Device mapped: ${device.toMap()}")
+
         val sendCallback: SendCallback = object : SendCallback {
             override fun onSendResult(codeResult: Int) {
                 android.os.Handler(
                     Looper.getMainLooper()
                 ).post {
-                    Log.i(TAG, "SendFile - On Send Result")
-                    sendEventWithResult("onSendResult", codeResult)
+                    Log.i(TAG, "[Kotlin] [SEND_FILE] onSendResult callback - code: $codeResult, opId: $opId")
+                    sendEventWithResultAndOpId("onSendResult", codeResult, opId)
+                    Log.d(TAG, "[Kotlin] [SEND_FILE] onSendResult event sent to Flutter")
                 }
             }
 
@@ -335,20 +425,22 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
                 android.os.Handler(
                     Looper.getMainLooper()
                 ).post {
-                    Log.i(TAG, "SendFile - On Send Progress")
-                    sendEventWithResult("onSendProgress", progress)
+                    Log.i(TAG, "[Kotlin] [SEND_FILE] onSendProgress callback - progress: $progress, opId: $opId")
+                    sendEventWithResultAndOpId("onSendProgress", progress, opId)
+                    Log.d(TAG, "[Kotlin] [SEND_FILE] onSendProgress event sent to Flutter")
                 }
             }
         }
         val onSend: () -> Unit = {
-            Log.i(TAG, "SendFile - On Send")
+            Log.i(TAG, "[Kotlin] [SEND_FILE] onSend success callback")
             channelResult.success(null)
         }
         val onFailure: (Exception) -> Unit = { e: Exception ->
-            Log.e(TAG, "SendFile - On Failure", e)
+            Log.e(TAG, "[Kotlin] [SEND_FILE] onFailure callback", e)
             channelResult.error(TAG, e.message, null)
         }
 
+        Log.d(TAG, "[Kotlin] [SEND_FILE] Calling wearEngineController.sendFile")
         wearEngineController.sendFile(
             device,
             pkgName!!,
@@ -358,27 +450,57 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
             onSend,
             onFailure
         )
+        Log.d(TAG, "[Kotlin] [SEND_FILE] wearEngineController.sendFile call completed")
     }
 
     private fun onSendJson(call: MethodCall, channelResult: Result) {
+        Log.d(TAG, "[Kotlin] [SEND_JSON] onSendJson method called")
         val mpDevice: Map<String, Any>? = call.argument<Map<String, Any>>("device")
         val pkgName: String? = call.argument<String>("pkgName")
         val fingerPrint: String? = call.argument<String>("fingerPrint")
         val jsonData: Map<String, Any>? = call.argument<Map<String, Any>>("jsonData")
+        val opId: Int? = call.argument<Int>("opId")
 
-        if (mpDevice?.isEmpty() != false) channelResult.error(TAG, "Device cannot be empty!!!", null)
-        if (pkgName.isNullOrBlank()) channelResult.error(TAG, "Package name cannot be empty!!!", null)
-        if (fingerPrint.isNullOrBlank()) channelResult.error(TAG, "Finger print name cannot be empty!!!", null)
-        if (jsonData == null || jsonData.isEmpty()) channelResult.error(TAG, "JSON data cannot be empty!!!", null)
+        Log.d(TAG, "[Kotlin] [SEND_JSON] Extracted parameters - pkgName: $pkgName, fingerPrint: $fingerPrint, jsonDataKeys: ${jsonData?.keys}, opId: $opId")
 
+        if (mpDevice?.isEmpty() != false) {
+            Log.e(TAG, "[Kotlin] [SEND_JSON] Validation failed: Device cannot be empty")
+            channelResult.error(TAG, "Device cannot be empty!!!", null)
+            return
+        }
+        if (pkgName.isNullOrBlank()) {
+            Log.e(TAG, "[Kotlin] [SEND_JSON] Validation failed: Package name cannot be empty")
+            channelResult.error(TAG, "Package name cannot be empty!!!", null)
+            return
+        }
+        if (fingerPrint.isNullOrBlank()) {
+            Log.e(TAG, "[Kotlin] [SEND_JSON] Validation failed: Finger print cannot be empty")
+            channelResult.error(TAG, "Finger print name cannot be empty!!!", null)
+            return
+        }
+        if (jsonData == null || jsonData.isEmpty()) {
+            Log.e(TAG, "[Kotlin] [SEND_JSON] Validation failed: JSON data cannot be empty")
+            channelResult.error(TAG, "JSON data cannot be empty!!!", null)
+            return
+        }
+        if (opId == null) {
+            Log.e(TAG, "[Kotlin] [SEND_JSON] Validation failed: Operation ID cannot be null")
+            channelResult.error(TAG, "Operation ID cannot be null!!!", null)
+            return
+        }
+
+        Log.d(TAG, "[Kotlin] [SEND_JSON] All validations passed")
         val device: Device = mapToDevice(mpDevice!!)
+        Log.d(TAG, "[Kotlin] [SEND_JSON] Device mapped: ${device.toMap()}")
+
         val sendCallback: SendCallback = object : SendCallback {
             override fun onSendResult(codeResult: Int) {
                 android.os.Handler(
                     Looper.getMainLooper()
                 ).post {
-                    Log.i(TAG, "SendJson - On Send Result")
-                    sendEventWithResult("onSendResult", codeResult)
+                    Log.i(TAG, "[Kotlin] [SEND_JSON] onSendResult callback - code: $codeResult, opId: $opId")
+                    sendEventWithResultAndOpId("onSendResult", codeResult, opId)
+                    Log.d(TAG, "[Kotlin] [SEND_JSON] onSendResult event sent to Flutter")
                 }
             }
 
@@ -386,20 +508,22 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
                 android.os.Handler(
                     Looper.getMainLooper()
                 ).post {
-                    Log.i(TAG, "SendJson - On Send Progress")
-                    sendEventWithResult("onSendProgress", progress)
+                    Log.i(TAG, "[Kotlin] [SEND_JSON] onSendProgress callback - progress: $progress, opId: $opId")
+                    sendEventWithResultAndOpId("onSendProgress", progress, opId)
+                    Log.d(TAG, "[Kotlin] [SEND_JSON] onSendProgress event sent to Flutter")
                 }
             }
         }
         val onSend: () -> Unit = {
-            Log.i(TAG, "SendJson - On Send")
+            Log.i(TAG, "[Kotlin] [SEND_JSON] onSend success callback")
             channelResult.success(null)
         }
         val onFailure: (Exception) -> Unit = { e: Exception ->
-            Log.e(TAG, "SendJson - On Failure", e)
+            Log.e(TAG, "[Kotlin] [SEND_JSON] onFailure callback", e)
             channelResult.error(TAG, e.message, null)
         }
 
+        Log.d(TAG, "[Kotlin] [SEND_JSON] Calling wearEngineController.sendJson")
         wearEngineController.sendJson(
             device,
             pkgName!!,
@@ -409,27 +533,57 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
             onSend,
             onFailure
         )
+        Log.d(TAG, "[Kotlin] [SEND_JSON] wearEngineController.sendJson call completed")
     }
 
     private fun onSendBytes(call: MethodCall, channelResult: Result) {
+        Log.d(TAG, "[Kotlin] [SEND_BYTES] onSendBytes method called")
         val mpDevice: Map<String, Any>? = call.argument<Map<String, Any>>("device")
         val pkgName: String? = call.argument<String>("pkgName")
         val fingerPrint: String? = call.argument<String>("fingerPrint")
         val bytes: List<Int>? = call.argument<List<Int>>("bytes")
+        val opId: Int? = call.argument<Int>("opId")
 
-        if (mpDevice?.isEmpty() != false) channelResult.error(TAG, "Device cannot be empty!!!", null)
-        if (pkgName.isNullOrBlank()) channelResult.error(TAG, "Package name cannot be empty!!!", null)
-        if (fingerPrint.isNullOrBlank()) channelResult.error(TAG, "Finger print name cannot be empty!!!", null)
-        if (bytes == null || bytes.isEmpty()) channelResult.error(TAG, "Bytes cannot be empty!!!", null)
+        Log.d(TAG, "[Kotlin] [SEND_BYTES] Extracted parameters - pkgName: $pkgName, fingerPrint: $fingerPrint, bytesLength: ${bytes?.size}, opId: $opId")
 
+        if (mpDevice?.isEmpty() != false) {
+            Log.e(TAG, "[Kotlin] [SEND_BYTES] Validation failed: Device cannot be empty")
+            channelResult.error(TAG, "Device cannot be empty!!!", null)
+            return
+        }
+        if (pkgName.isNullOrBlank()) {
+            Log.e(TAG, "[Kotlin] [SEND_BYTES] Validation failed: Package name cannot be empty")
+            channelResult.error(TAG, "Package name cannot be empty!!!", null)
+            return
+        }
+        if (fingerPrint.isNullOrBlank()) {
+            Log.e(TAG, "[Kotlin] [SEND_BYTES] Validation failed: Finger print cannot be empty")
+            channelResult.error(TAG, "Finger print name cannot be empty!!!", null)
+            return
+        }
+        if (bytes == null || bytes.isEmpty()) {
+            Log.e(TAG, "[Kotlin] [SEND_BYTES] Validation failed: Bytes cannot be empty")
+            channelResult.error(TAG, "Bytes cannot be empty!!!", null)
+            return
+        }
+        if (opId == null) {
+            Log.e(TAG, "[Kotlin] [SEND_BYTES] Validation failed: Operation ID cannot be null")
+            channelResult.error(TAG, "Operation ID cannot be null!!!", null)
+            return
+        }
+
+        Log.d(TAG, "[Kotlin] [SEND_BYTES] All validations passed")
         val device: Device = mapToDevice(mpDevice!!)
+        Log.d(TAG, "[Kotlin] [SEND_BYTES] Device mapped: ${device.toMap()}")
+
         val sendCallback: SendCallback = object : SendCallback {
             override fun onSendResult(codeResult: Int) {
                 android.os.Handler(
                     Looper.getMainLooper()
                 ).post {
-                    Log.i(TAG, "SendBytes - On Send Result")
-                    sendEventWithResult("onSendResult", codeResult)
+                    Log.i(TAG, "[Kotlin] [SEND_BYTES] onSendResult callback - code: $codeResult, opId: $opId")
+                    sendEventWithResultAndOpId("onSendResult", codeResult, opId)
+                    Log.d(TAG, "[Kotlin] [SEND_BYTES] onSendResult event sent to Flutter")
                 }
             }
 
@@ -437,21 +591,25 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
                 android.os.Handler(
                     Looper.getMainLooper()
                 ).post {
-                    Log.i(TAG, "SendBytes - On Send Progress")
-                    sendEventWithResult("onSendProgress", progress)
+                    Log.i(TAG, "[Kotlin] [SEND_BYTES] onSendProgress callback - progress: $progress, opId: $opId")
+                    sendEventWithResultAndOpId("onSendProgress", progress, opId)
+                    Log.d(TAG, "[Kotlin] [SEND_BYTES] onSendProgress event sent to Flutter")
                 }
             }
         }
         val onSend: () -> Unit = {
-            Log.i(TAG, "SendBytes - On Send")
+            Log.i(TAG, "[Kotlin] [SEND_BYTES] onSend success callback")
             channelResult.success(null)
         }
         val onFailure: (Exception) -> Unit = { e: Exception ->
-            Log.e(TAG, "SendBytes - On Failure", e)
+            Log.e(TAG, "[Kotlin] [SEND_BYTES] onFailure callback", e)
             channelResult.error(TAG, e.message, null)
         }
 
+        Log.d(TAG, "[Kotlin] [SEND_BYTES] Converting bytes list to byte array")
         val byteArray = bytes!!.map { it.toByte() }.toByteArray()
+        Log.d(TAG, "[Kotlin] [SEND_BYTES] Byte array created, length: ${byteArray.size}")
+        Log.d(TAG, "[Kotlin] [SEND_BYTES] Calling wearEngineController.sendBytes")
         wearEngineController.sendBytes(
             device,
             pkgName!!,
@@ -461,43 +619,68 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
             onSend,
             onFailure
         )
+        Log.d(TAG, "[Kotlin] [SEND_BYTES] wearEngineController.sendBytes call completed")
     }
 
     private fun onRegisterReceiver(call: MethodCall, channelResult: Result) {
+        Log.d(TAG, "[Kotlin] [RECEIVE] onRegisterReceiver method called")
         val mpDevice: Map<String, Any>? = call.argument<Map<String, Any>>("device")
         val pkgName: String? = call.argument<String>("pkgName")
         val fingerPrint: String? = call.argument<String>("fingerPrint")
 
-        if (mpDevice?.isEmpty() != false) channelResult.error(TAG, "Device cannot be empty!!!", null)
-        if (pkgName.isNullOrBlank()) channelResult.error(TAG, "Package name cannot be empty!!!", null)
-        if (fingerPrint.isNullOrBlank()) channelResult.error(TAG, "Finger print cannot be empty!!!", null)
+        Log.d(TAG, "[Kotlin] [RECEIVE] Extracted parameters - pkgName: $pkgName, fingerPrint: $fingerPrint")
 
+        if (mpDevice?.isEmpty() != false) {
+            Log.e(TAG, "[Kotlin] [RECEIVE] Validation failed: Device cannot be empty")
+            channelResult.error(TAG, "Device cannot be empty!!!", null)
+            return
+        }
+        if (pkgName.isNullOrBlank()) {
+            Log.e(TAG, "[Kotlin] [RECEIVE] Validation failed: Package name cannot be empty")
+            channelResult.error(TAG, "Package name cannot be empty!!!", null)
+            return
+        }
+        if (fingerPrint.isNullOrBlank()) {
+            Log.e(TAG, "[Kotlin] [RECEIVE] Validation failed: Finger print cannot be empty")
+            channelResult.error(TAG, "Finger print cannot be empty!!!", null)
+            return
+        }
+
+        Log.d(TAG, "[Kotlin] [RECEIVE] All validations passed")
         val device: Device = mapToDevice(mpDevice!!)
+        Log.d(TAG, "[Kotlin] [RECEIVE] Device mapped: ${device.toMap()}")
 
         if (messageReceiver == null) {
+            Log.d(TAG, "[Kotlin] [RECEIVE] Creating new message receiver")
             messageReceiver = Receiver { message ->
                 android.os.Handler(Looper.getMainLooper()).post {
-                    Log.i(TAG, "MessageReceiver - onReceive")
+                    Log.i(TAG, "[Kotlin] [RECEIVE] MessageReceiver.onReceive called")
+                    Log.d(TAG, "[Kotlin] [RECEIVE] Message payload size: ${message?.data?.size ?: 0} bytes")
                     if (eventSink == null) {
-                        Log.e(TAG, "EventSink is null! Cannot send message to Flutter")
+                        Log.e(TAG, "[Kotlin] [RECEIVE] EventSink is null! Cannot send message to Flutter")
                     } else {
                         val messageMap = message.toMap()
-                        Log.d(TAG, "Sending message to Flutter: $messageMap")
+                        Log.d(TAG, "[Kotlin] [RECEIVE] Converting message to map: payloadSize=${messageMap["payload"]?.let { (it as? ByteArray)?.size }}")
                         sendEventWithResult("onMessageReceived", messageMap)
+                        Log.d(TAG, "[Kotlin] [RECEIVE] Message event sent to Flutter successfully")
                     }
                 }
             }
+            Log.d(TAG, "[Kotlin] [RECEIVE] Message receiver created")
+        } else {
+            Log.d(TAG, "[Kotlin] [RECEIVE] Using existing message receiver")
         }
 
         val onResult: () -> Unit = {
-            Log.i(TAG, "Register Receiver - On Result")
+            Log.i(TAG, "[Kotlin] [RECEIVE] Register Receiver - On Result success")
             channelResult.success(null)
         }
         val onFailure: (Exception) -> Unit = { e: Exception ->
-            Log.e(TAG, "Register Receiver - On Failure", e)
+            Log.e(TAG, "[Kotlin] [RECEIVE] Register Receiver - On Failure", e)
             channelResult.error(TAG, e.message, null)
         }
 
+        Log.d(TAG, "[Kotlin] [RECEIVE] Calling wearEngineController.registerReceiver")
         wearEngineController.registerReceiver(
             device,
             pkgName!!,
@@ -506,6 +689,7 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
             onResult,
             onFailure
         )
+        Log.d(TAG, "[Kotlin] [RECEIVE] wearEngineController.registerReceiver call completed")
     }
 
     private fun onUnregisterReceiver(channelResult: Result) {
