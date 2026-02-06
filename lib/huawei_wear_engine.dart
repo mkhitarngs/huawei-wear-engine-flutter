@@ -147,4 +147,14 @@ class HuaweiWearEngine {
   Future<void> unregisterReceiver() async {
     return HuaweiWearEnginePlatform.instance.unregisterReceiver();
   }
+
+  Future<void> setReceiverMode(String mode) async {
+    return HuaweiWearEnginePlatform.instance.setReceiverMode(mode);
+  }
+
+  Future<String> getReceiverMode() async {
+    // Ensure a safe default if native side has no stored value yet.
+    return (await HuaweiWearEnginePlatform.instance.getReceiverMode()) ??
+        'service_only';
+  }
 }

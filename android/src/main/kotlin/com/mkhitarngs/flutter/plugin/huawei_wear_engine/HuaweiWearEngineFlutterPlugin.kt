@@ -1,5 +1,6 @@
 package com.mkhitarngs.flutter.plugin.huawei_wear_engine
 
+import android.content.Context
 import android.os.Looper
 import android.util.Log
 import com.huawei.wearengine.auth.AuthCallback
@@ -17,6 +18,13 @@ import io.flutter.plugin.common.EventChannel
 
 private const val TAG = "HwWearEngineFlutter"
 
+private const val PREFS_NAME = "FlutterSharedPreferences"
+private const val KEY_RECEIVER_MODE = "flutter.watch_receiver_mode"
+
+private const val MODE_SERVICE_ONLY = "service_only"
+private const val MODE_PLUGIN_ONLY = "plugin_only"
+private const val MODE_BOTH_DEDUPE = "both_dedupe"
+
 /** HuaweiWearEngineFlutterPlugin */
 class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHandler {
     /// The MethodChannel that will the communication between Flutter and native Android
@@ -28,11 +36,13 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
     private var eventSink: EventChannel.EventSink? = null
     private lateinit var wearEngineController: WearEngineController
     private var messageReceiver: Receiver? = null
+    private lateinit var applicationContext: Context
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "huawei_wear_engine")
         eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, "com.mkhitarngs.flutter.plugin.huawei_wear_engine/wear_engine")
-        wearEngineController = WearEngineController(flutterPluginBinding.applicationContext)
+        applicationContext = flutterPluginBinding.applicationContext
+        wearEngineController = WearEngineController(applicationContext)
         channel.setMethodCallHandler(this)
         eventChannel.setStreamHandler(this)
     }
@@ -54,6 +64,8 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
             "sendBytes" -> onSendBytes(call, result)
             "registerReceiver" -> onRegisterReceiver(call, result)
             "unregisterReceiver" -> onUnregisterReceiver(result)
+            "setReceiverMode" -> onSetReceiverMode(call, result)
+            "getReceiverMode" -> onGetReceiverMode(result)
             else -> result.notImplemented()
         }
     }
@@ -622,6 +634,38 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
         Log.d(TAG, "[Kotlin] [SEND_BYTES] wearEngineController.sendBytes call completed")
     }
 
+    private fun getStoredReceiverMode(): String {
+        val prefs = applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val raw = prefs.getString(KEY_RECEIVER_MODE, null)
+        return when (raw) {
+            MODE_SERVICE_ONLY, MODE_PLUGIN_ONLY, MODE_BOTH_DEDUPE -> raw
+            else -> MODE_SERVICE_ONLY
+        }
+    }
+
+    private fun onSetReceiverMode(call: MethodCall, channelResult: Result) {
+        val mode = call.argument<String>("mode") ?: ""
+
+        val normalized = when (mode) {
+            MODE_SERVICE_ONLY, MODE_PLUGIN_ONLY, MODE_BOTH_DEDUPE -> mode
+            else -> {
+                channelResult.error(TAG, "Invalid receiver mode: $mode", null)
+                return
+            }
+        }
+
+        val prefs = applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putString(KEY_RECEIVER_MODE, normalized).apply()
+
+        Log.i(TAG, "Receiver mode set to: $normalized")
+        channelResult.success(null)
+    }
+
+    private fun onGetReceiverMode(channelResult: Result) {
+        val mode = getStoredReceiverMode()
+        channelResult.success(mode)
+    }
+
     private fun onRegisterReceiver(call: MethodCall, channelResult: Result) {
         Log.d(TAG, "[Kotlin] [RECEIVE] onRegisterReceiver method called")
         val mpDevice: Map<String, Any>? = call.argument<Map<String, Any>>("device")
@@ -649,6 +693,14 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
         Log.d(TAG, "[Kotlin] [RECEIVE] All validations passed")
         val device: Device = mapToDevice(mpDevice!!)
         Log.d(TAG, "[Kotlin] [RECEIVE] Device mapped: ${device.toMap()}")
+
+        val mode = getStoredReceiverMode()
+        if (mode == MODE_SERVICE_ONLY) {
+            // In service_only mode, plugin-side receiver must be a no-op
+            Log.i(TAG, "[Kotlin] [RECEIVE] service_only mode -> skipping plugin receiver registration")
+            channelResult.success(null)
+            return
+        }
 
         if (messageReceiver == null) {
             Log.d(TAG, "[Kotlin] [RECEIVE] Creating new message receiver")
@@ -693,6 +745,8 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
     }
 
     private fun onUnregisterReceiver(channelResult: Result) {
+        // In service_only mode, plugin receiver is effectively a no-op.
+        // Still allow this call to succeed even if nothing is registered.
         if (messageReceiver == null) {
             channelResult.success(null)
             return

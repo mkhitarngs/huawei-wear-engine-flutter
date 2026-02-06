@@ -122,4 +122,12 @@ abstract class HuaweiWearEnginePlatform extends PlatformInterface {
   Future<void> unregisterReceiver() {
     throw UnimplementedError('unregisterReceiver() has not been implemented.');
   }
+
+  Future<void> setReceiverMode(String mode) {
+    throw UnimplementedError('setReceiverMode() has not been implemented.');
+  }
+
+  Future<String?> getReceiverMode() {
+    throw UnimplementedError('getReceiverMode() has not been implemented.');
+  }
 }

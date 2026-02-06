@@ -419,6 +419,23 @@ class MethodChannelHuaweiWearEngine extends HuaweiWearEnginePlatform {
   }
 
   // ------------------------------------------------------------
+  // Receiver mode configuration
+  // ------------------------------------------------------------
+
+  @override
+  Future<void> setReceiverMode(String mode) async {
+    await methodChannel.invokeMethod<void>(
+      'setReceiverMode',
+      {'mode': mode},
+    );
+  }
+
+  @override
+  Future<String?> getReceiverMode() async {
+    return methodChannel.invokeMethod<String>('getReceiverMode');
+  }
+
+  // ------------------------------------------------------------
   // Cleanup (recommended)
   // ------------------------------------------------------------
   Future<void> dispose() async {

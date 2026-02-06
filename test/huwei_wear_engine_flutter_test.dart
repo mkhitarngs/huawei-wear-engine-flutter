@@ -100,6 +100,18 @@ class MockHuaweiWearEnginePlatform
     // TODO: implement sendJson
     throw UnimplementedError();
   }
+
+  @override
+  Future<String?> getReceiverMode() {
+    // TODO: implement getReceiverMode
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setReceiverMode(String mode) {
+    // TODO: implement setReceiverMode
+    throw UnimplementedError();
+  }
 }
 
 void main() {
