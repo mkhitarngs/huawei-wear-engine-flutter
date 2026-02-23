@@ -35,12 +35,15 @@ fun Device.toMap(): Map<String, Any> {
 fun mapToDevice(map: Map<String, Any>): Device {
     val device = Device()
 
-    device.name = map["name"].toString()
-    device.uuid = map["uuid"].toString()
-    device.model = map["model"].toString()
-    device.productType = (map["productType"] as Int)
-    device.setConnectState(if(map["connected"] == true) 2 else 0)
-    device.reservedness = map["reservedness"].toString()
+    device.name = map["name"]?.toString().orEmpty()
+    device.uuid = map["uuid"]?.toString().orEmpty()
+    device.model = map["model"]?.toString().orEmpty()
 
+    val pt = map["productType"]
+    device.productType = (pt as? Number)?.toInt() ?: 0
+
+    device.setConnectState(if (map["connected"] == true) 2 else 0)
+
+    device.reservedness = map["reservedness"]?.toString().orEmpty()
     return device
 }

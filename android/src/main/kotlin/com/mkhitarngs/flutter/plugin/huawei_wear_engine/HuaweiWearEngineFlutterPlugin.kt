@@ -71,8 +71,23 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        channel.setMethodCallHandler(null)
-        eventChannel.setStreamHandler(null)
+        try {
+            val receiver = messageReceiver
+            if (receiver != null) {
+                wearEngineController.unregisterReceiver(
+                    receiver = receiver,
+                    onSuccess = { Log.i(TAG, "[Kotlin] [RECEIVE] Receiver unregistered on detach") },
+                    onFailure = { e -> Log.w(TAG, "[Kotlin] [RECEIVE] Failed to unregister on detach", e) }
+                )
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "[Kotlin] [RECEIVE] Exception while unregistering on detach", e)
+        } finally {
+            messageReceiver = null
+            eventSink = null
+            channel.setMethodCallHandler(null)
+            eventChannel.setStreamHandler(null)
+        }
     }
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
@@ -179,7 +194,7 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
                 android.os.Handler(
                     Looper.getMainLooper()
                 ).post {
-                sendEvent("onCancel")
+                    sendEvent("onCancel")
                 }
             }
         }
@@ -619,7 +634,10 @@ class HuaweiWearEngineFlutterPlugin : FlutterPlugin, MethodCallHandler, EventCha
         }
 
         Log.d(TAG, "[Kotlin] [SEND_BYTES] Converting bytes list to byte array")
-        val byteArray = bytes!!.map { it.toByte() }.toByteArray()
+        val list = bytes ?: emptyList()
+        val byteArray = ByteArray(list.size) { i ->
+            (list[i] and 0xFF).toByte()
+        }
         Log.d(TAG, "[Kotlin] [SEND_BYTES] Byte array created, length: ${byteArray.size}")
         Log.d(TAG, "[Kotlin] [SEND_BYTES] Calling wearEngineController.sendBytes")
         wearEngineController.sendBytes(

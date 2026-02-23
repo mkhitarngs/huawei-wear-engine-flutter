@@ -274,6 +274,50 @@ class WearEngineController(context: Context) {
         return builtMessage
     }
 
+    private fun buildMessageAsRealFile(filePath: String): Message {
+        Log.d(TAG, "[Kotlin] [SEND_FILE] buildMessageAsRealFile - filePath: $filePath")
+
+        val file = File(filePath)
+        require(file.exists()) { "File does not exist: $filePath" }
+
+        val builder = Message.Builder()
+
+        val builderClass = builder.javaClass
+
+        val attached = runCatching {
+            val m = builderClass.getMethod("setFile", File::class.java)
+            m.invoke(builder, file)
+            true
+        }.getOrElse {
+            runCatching {
+                val m = builderClass.getMethod("setFilePath", String::class.java)
+                m.invoke(builder, file.absolutePath)
+                true
+            }.getOrElse {
+                false
+            }
+        }
+
+        if (!attached) {
+            throw IllegalStateException(
+                "Your WearEngine SDK does not expose Message.Builder.setFile(File) " +
+                        "or setFilePath(String). Can't do REAL file transfer with this SDK."
+            )
+        }
+
+        val msg = builder.build()
+        Log.d(TAG, "[Kotlin] [SEND_FILE] buildMessageAsRealFile - built message with file attachment")
+        return msg
+    }
+
+    private fun buildMessageFromFileAsPayload(filePath: String): Message {
+        Log.d(TAG, "[Kotlin] [SEND] buildMessageFromFileAsPayload - filePath: $filePath")
+        val file = File(filePath)
+        require(file.exists()) { "File does not exist: $filePath" }
+        val payload = file.readBytes()
+        return Message.Builder().setPayload(payload).build()
+    }
+
     fun sendFile(
         connectedDevice: Device,
         pkgName: String,
@@ -285,7 +329,7 @@ class WearEngineController(context: Context) {
     ) {
         Log.d(TAG, "[Kotlin] [SEND_FILE] sendFile called - filePath: $filePath")
         try {
-            val message = buildMessageFromFile(filePath)
+            val message = buildMessageAsRealFile(filePath)
             Log.d(TAG, "[Kotlin] [SEND_FILE] Message built from file, calling send")
             send(
                 connectedDevice,
